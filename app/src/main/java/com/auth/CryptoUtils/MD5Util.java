@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.CryptoUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,9 +7,9 @@ import java.security.NoSuchAlgorithmException;
  * Created by yhj on 2018/6/6.
  */
 
-public class MD5Utils {
+public class MD5Util {
     //md5 加密算法
-    static String md5(String text) {
+    public static String md5(String text) {
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("md5");

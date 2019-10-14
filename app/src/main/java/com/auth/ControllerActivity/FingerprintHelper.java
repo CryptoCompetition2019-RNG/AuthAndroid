@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.CancellationSignal;

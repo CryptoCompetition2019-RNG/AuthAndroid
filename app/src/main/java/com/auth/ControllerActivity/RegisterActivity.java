@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +15,8 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.CancellationSignal;
+
+import com.auth.CryptoUtils.MD5Util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -168,7 +170,7 @@ public class RegisterActivity extends AppCompatActivity {
      * 保存账号和密码到SharedPreferences中SharedPreferences
      */
     private void saveRegisterInfo(String userName,String psw){
-        String md5Psw = MD5Utils.md5(psw);//把密码用MD5加密
+        String md5Psw = MD5Util.md5(psw);//把密码用MD5加密
         //loginInfo表示文件名, mode_private SharedPreferences sp = getSharedPreferences( );
         SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
 

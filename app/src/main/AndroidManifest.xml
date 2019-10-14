@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.trng.pwdProtection">
+    package="com.auth.ControllerActivity">
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
@@ -17,18 +17,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.auth.ControllerActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".UpdateActivity" />
-        <activity android:name=".ItemActivity" />
-        <activity android:name=".FingerprintVerifyDialog" />
-        <activity android:name=".LostFindActivity"></activity>
+        <activity android:name="com.auth.ControllerActivity.RegisterActivity" />
+        <activity android:name="com.auth.ControllerActivity.UpdateActivity" />
+        <activity android:name="com.auth.ControllerActivity.ItemActivity" />
+        <activity android:name="com.auth.ControllerActivity.FingerprintVerifyDialog" />
+        <activity android:name="com.auth.ControllerActivity.LostFindActivity"></activity>
     </application>
 
 </manifest>

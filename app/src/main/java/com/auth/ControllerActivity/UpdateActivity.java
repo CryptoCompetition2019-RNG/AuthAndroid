@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.auth.CryptoUtils.MD5Util;
 
 public class UpdateActivity extends AppCompatActivity {
 
@@ -109,7 +111,7 @@ public class UpdateActivity extends AppCompatActivity {
      * 保存账号和密码到SharedPreferences中SharedPreferences
      */
     private void saveUpdateInfo(String userName,String psw){
-        String md5Psw = MD5Utils.md5(psw);//把密码用MD5加密
+        String md5Psw = MD5Util.md5(psw);//把密码用MD5加密
         //loginInfo表示文件名, mode_private SharedPreferences sp = getSharedPreferences( );
         SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
 

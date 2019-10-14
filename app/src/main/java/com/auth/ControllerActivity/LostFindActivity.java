@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

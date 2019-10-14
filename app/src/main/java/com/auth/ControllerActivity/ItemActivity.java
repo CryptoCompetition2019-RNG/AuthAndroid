@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TRNG</string>
+    <string name="app_name">AuthAndroid</string>
     <string name="loginsuccess">登录成功</string>
     <string name="kindly_reminder">温馨提示</string>
     <string name="confirm">确定</string>

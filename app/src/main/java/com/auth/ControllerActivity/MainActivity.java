@@ -1,4 +1,4 @@
-package com.trng.pwdProtection;
+package com.auth.ControllerActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,8 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 //import com.uuzuche.lib_zxing.activity.CaptureActivity;
+import com.auth.CryptoUtils.MD5Util;
 import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
     }
-    //获取界面控件
+
+    /*
+     *  获取界面控件
+     */
     private void init() {
         //从main_title_bar中获取的id
         //从activity_login.xml中获取的
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //立即注册控件的点击事件
+        // 立即注册控件的点击事件
         tv_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, 1);
             }
         });
-        //找回密码控件的点击事件
+
+        // 找回密码控件的点击事件
         tv_find_psw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,LostFindActivity.class));
             }
         });
+
         //登录按钮的点击事件
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,11 +97,11 @@ public class MainActivity extends AppCompatActivity {
                 //开始登录，获取用户名和密码 getText().toString().trim();
                 userName = et_user_name.getText().toString().trim();
                 psw = et_psw.getText().toString().trim();
-                //对当前用户输入的密码进行MD5加密再进行比对判断, MD5Utils.md5( ); psw 进行加密判断是否一致
-                String md5Psw = MD5Utils.md5(psw);
+                //对当前用户输入的密码进行MD5加密再进行比对判断, MD5Util.md5( ); psw 进行加密判断是否一致
+                String md5Psw = MD5Util.md5(psw);
                 // md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
                 // 定义方法 readPsw为了读取用户名，得到密码
-                spPsw = readPsw(userName);
+                spPsw = readPassword(userName);
                 // TextUtils.isEmpty
                 if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(MainActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
@@ -127,18 +132,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     /**
-     *从SharedPreferences中根据用户名读取密码
+     * 从SharedPreferences中根据用户名读取密码
      */
-    private String readPsw(String userName){
+    private String readPassword(String userName){
         //getSharedPreferences("loginInfo",MODE_PRIVATE);
         //"loginInfo",mode_private; MODE_PRIVATE表示可以继续写入
         SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
         //sp.getString() userName, "";
         return sp.getString(userName , "");
     }
+
     /**
-     *保存登录状态和登录用户名到SharedPreferences中
+     * 保存登录状态和登录用户名到SharedPreferences中
      */
     private void saveLoginStatus(boolean status,String userName){
         //saveLoginStatus(true, userName);
@@ -153,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         //提交修改
         editor.apply();
     }
+
     /**
      * 注册成功的数据返回至此
      * @param requestCode 请求码
