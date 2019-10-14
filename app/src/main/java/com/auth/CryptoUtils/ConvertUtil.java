@@ -455,7 +455,7 @@ public class ConvertUtil {
     /** 
      * ASCII码字符串转数字字符串 
      *  
-     * @param String 
+     * @param content
      *            ASCII字符串 
      * @return 字符串 
      */  
@@ -657,5 +657,9 @@ public class ConvertUtil {
             bt[i] = input[i + startIndex];  
         }  
         return bt;  
-    }  
+    }
+
+    public static String zeroRightPadding(String src, Integer length) {
+        return String.format("%-" + length + "s", src).replace(" ", "0");
+    }
 }
