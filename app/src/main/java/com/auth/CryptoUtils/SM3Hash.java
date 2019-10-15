@@ -7,12 +7,10 @@ import java.util.regex.Pattern;
 import java.io.FileInputStream;
 
 /*
- * SM3Hash sm3= new SM3Hash();
- * byte[] hash1, hash2;
  * byte[] msg;
  * String filePath = new String("E:/Poem.txt");
- * hash1 = sm3.SM3(msg);
- * hash2 = sm3.SM3(filePath);
+ * byte[] hash1 = (new SM3Hash()).fileSM3(msg);
+ * byte[] hash2 = (new SM3Hash()).fileSM3(filePath);
  *
  */
 public class SM3Hash {
@@ -20,7 +18,7 @@ public class SM3Hash {
 
     }
 
-    public byte[] SM3(byte[] msg) {
+    public byte[] bytesSM3(byte[] msg) {
         byte[] md = new byte[32];
         SM3Digest sm3 = new SM3Digest();
         sm3.update(msg, 0, msg.length);
@@ -28,7 +26,10 @@ public class SM3Hash {
         return md;
     }
 
-    public String SM3(String filePath) {
+    /**
+     * byte[] hash1 = (new SM3Hash()).fileSM3(filePath);
+     */
+    public String fileSM3(String filePath) {
         byte[] bs = null;
         try {
             //�����ļ�
@@ -38,7 +39,7 @@ public class SM3Hash {
             inputStream.read(bs);
             inputStream.close();
             //ȡHash
-            byte[] Hash = SM3(bs);
+            byte[] Hash = bytesSM3(bs);
             return ConvertUtil.getHexString(Hash);
         } catch (Exception e) {
             System.out.println("Exception " + e);
@@ -46,9 +47,12 @@ public class SM3Hash {
         }
     }
 
-    public String strSM3(String input) {
+    /**
+     * byte[] hash1 = (new SM3Hash()).stringSM3(msg);
+     */
+    public String stringSM3(String input) {
         byte[] bs = new byte[0];
-        bs = SM3(input.getBytes());
+        bs = bytesSM3(input.getBytes());
         String cipherText = ConvertUtil.getHexString(bs);
         if (cipherText != null && cipherText.trim().length() > 0) {
             Pattern p = Pattern.compile("\\s*|\t|\r|\n");

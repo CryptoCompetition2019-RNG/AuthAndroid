@@ -1,6 +1,5 @@
 package com.auth.NetworkUtils;
 
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -10,15 +9,16 @@ import java.util.Random;
 
 import com.auth.CryptoUtils.ConvertUtil;
 
-public class DHKeyNegotiator {
-    private BigInteger p;
-    private BigInteger g;
+public class SessionKeyNegotiator {
+    public BigInteger p;
+    public BigInteger g;
     private BigInteger mySecret;
     public BigInteger sharedSecret;
 
     private boolean negotiateCall1() {
         try {
             JSONObject response = HttpUtil.sendPostRequest("/negotiate_key1/", new JSONObject(""));
+            if (response == null) return false;
             this.p = new BigInteger(response.getString("p"), 16);
             this.g = new BigInteger(response.getString("g"), 16);
             return true;
@@ -30,11 +30,12 @@ public class DHKeyNegotiator {
 
     private boolean negotiateCall2() {
         String message = g.modPow(mySecret, p).toString(16);
-        message = ConvertUtil.zeroRightPadding(message, 64);
+        message = ConvertUtil.zeroRPad(message, 64);
         try {
             JSONObject requset = new JSONObject();
             requset.put("data", message);
             JSONObject response = HttpUtil.sendPostRequest("/negotiate_key2/", new JSONObject(""));
+            if(response == null) return false;
             sharedSecret = (new BigInteger(response.getString("data"), 16)).modPow(mySecret, p);
             return true;
         } catch (Exception e) {
@@ -43,7 +44,7 @@ public class DHKeyNegotiator {
         }
     }
 
-    DHKeyNegotiator() {
+    SessionKeyNegotiator() {
         if (!negotiateCall1()) {
             Log.e("Negotiate Failed", "Negotiate DH key failed at step 1.");
             return;

@@ -1,31 +1,8 @@
 package com.auth.CryptoUtils;
 
 public class SM3 {
-	/*public static final byte[] iv = { 0x2C, (byte) 0x91, (byte) 0xB4, 0x01,
-			(byte) 0xFC, 0x64, (byte) 0xB2, (byte) 0xCE, 0x7C, 0x4E,
-			(byte) 0xAE, (byte) 0xFB, (byte) 0xB1, 0x3B, (byte) 0xB6,
-			(byte) 0xD3, 0x17, 0x60, (byte) 0xB6, 0x35, (byte) 0xF3, 0x6F,
-			0x13, (byte) 0xEB, (byte) 0xC8, 0x77, (byte) 0xE9, (byte) 0xA0,
-			(byte) 0xC2, 0x76, (byte) 0xA8, 0x17 };*/
-
-    public static final byte[] iv = {0x73, (byte) 0x80, 0x16, 0x6f, 0x49,
-            0x14, (byte) 0xb2, (byte) 0xb9, 0x17, 0x24, 0x42, (byte) 0xd7,
-            (byte) 0xda, (byte) 0x8a, 0x06, 0x00, (byte) 0xa9, 0x6f, 0x30,
-            (byte) 0xbc, (byte) 0x16, 0x31, 0x38, (byte) 0xaa, (byte) 0xe3,
-            (byte) 0x8d, (byte) 0xee, 0x4d, (byte) 0xb0, (byte) 0xfb, 0x0e,
-            0x4e};//32byte
 
     public static int[] Tj = new int[64]; //64*4 byte
-
-    static {
-        for (int i = 0; i < 16; i++) {
-            Tj[i] = 0x79cc4519;
-        }
-
-        for (int i = 16; i < 64; i++) {
-            Tj[i] = 0x7a879d8a;
-        }
-    }
 
     public static byte[] CF(byte[] V, byte[] B) {
         int[] v, b;
@@ -100,7 +77,7 @@ public class SM3 {
 		System.out.println("杩唬鍘嬬缉涓棿鍊� ");*/
 
         for (int j = 0; j < 64; j++) {
-            ss1 = (bitCycleLeft(a, 12) + e + bitCycleLeft(Tj[j], j));
+            ss1 = (bitCycleLeft(a, 12) + e + bitCycleLeft(SM3Constant.Tj[j], j));
             ss1 = bitCycleLeft(ss1, 7);
             ss2 = ss1 ^ bitCycleLeft(a, 12);
             tt1 = FFj(a, b, c, j) + d + ss2 + w1[j];

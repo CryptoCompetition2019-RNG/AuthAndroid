@@ -1,6 +1,8 @@
 package com.auth.CryptoUtils;
 
-import java.math.BigInteger; 
+import junit.framework.Assert;
+
+import java.math.BigInteger;
  
 public class ConvertUtil {
 	 /** 
@@ -489,26 +491,7 @@ public class ConvertUtil {
             result = "0" + result;  
         }  
         return patchHexString(result.toUpperCase(), maxLength);  
-    }  
-      
-    /** 
-     * 字节数组转为普通字符串（ASCII对应的字符） 
-     *  
-     * @param bytearray 
-     *            byte[] 
-     * @return String 
-     */  
-    public static String byteToString(byte[] bytearray) {  
-        String result = "";  
-        char temp;  
-  
-        int length = bytearray.length;  
-        for (int i = 0; i < length; i++) {  
-            temp = (char) bytearray[i];  
-            result += temp;  
-        }  
-        return result;  
-    }  
+    }
       
     /** 
      * 二进制字符串转十进制 
@@ -659,7 +642,8 @@ public class ConvertUtil {
         return bt;  
     }
 
-    public static String zeroRightPadding(String src, Integer length) {
+    public static String zeroRPad(String src, Integer length) {
+        Assert.assertTrue(src.length() <= length);
         return String.format("%-" + length + "s", src).replace(" ", "0");
     }
 }

@@ -12,14 +12,9 @@ public class SM3Digest {
     private static final int BLOCK_LENGTH = 64;
 
     /**
-     * 缓冲区长度
-     */
-    private static final int BUFFER_LENGTH = BLOCK_LENGTH * 1;
-
-    /**
      * 缓冲区
      */
-    private byte[] xBuf = new byte[BUFFER_LENGTH];
+    private byte[] xBuf = new byte[BLOCK_LENGTH + 1];
 
     /**
      * 缓冲区偏移量
@@ -29,7 +24,7 @@ public class SM3Digest {
     /**
      * 初始向量
      */
-    private byte[] V = SM3.iv.clone();
+    private byte[] V = SM3Constant.iv.clone();
 
     private int cntBlock = 0;
 
@@ -58,7 +53,7 @@ public class SM3Digest {
     public void reset() {
         xBufOff = 0;
         cntBlock = 0;
-        V = SM3.iv.clone();
+        V = SM3Constant.iv.clone();
     }
 
     /**
@@ -69,7 +64,7 @@ public class SM3Digest {
      * @param len   明文长度
      */
     public void update(byte[] in, int inOff, int len) {
-        int partLen = BUFFER_LENGTH - xBufOff;
+        int partLen = BLOCK_LENGTH + 1 - xBufOff;
         int inputLen = len;
         int dPos = inOff;
         if (partLen < inputLen) {
@@ -77,10 +72,10 @@ public class SM3Digest {
             inputLen -= partLen;
             dPos += partLen;
             doUpdate();
-            while (inputLen > BUFFER_LENGTH) {
-                System.arraycopy(in, dPos, xBuf, 0, BUFFER_LENGTH);
-                inputLen -= BUFFER_LENGTH;
-                dPos += BUFFER_LENGTH;
+            while (inputLen > BLOCK_LENGTH + 1) {
+                System.arraycopy(in, dPos, xBuf, 0, BLOCK_LENGTH + 1);
+                inputLen -= BLOCK_LENGTH + 1;
+                dPos += BLOCK_LENGTH + 1;
                 doUpdate();
             }
         }
@@ -91,7 +86,7 @@ public class SM3Digest {
 
     private void doUpdate() {
         byte[] B = new byte[BLOCK_LENGTH];
-        for (int i = 0; i < BUFFER_LENGTH; i += BLOCK_LENGTH) {
+        for (int i = 0; i < BLOCK_LENGTH + 1; i += BLOCK_LENGTH) {
             System.arraycopy(xBuf, i, B, 0, B.length);
             doHash(B);
         }
