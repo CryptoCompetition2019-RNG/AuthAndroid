@@ -7,15 +7,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 public abstract class AbstractModel {
-    protected JSONObject modelData = new JSONObject();
+    protected boolean loadStatus = false;
 
-    AbstractModel(String id) {
-        this.setUniqueIdent(id);
-    }
+    protected JSONObject modelData = new JSONObject();
 
     protected abstract String getUniqueIdent();
 
     protected abstract void setUniqueIdent(String id);
+
+    protected AbstractModel(String id) {
+        this.setUniqueIdent(id);
+    }
+
+    public boolean checkLoaded(){return loadStatus;}
 
     public void saveToFile() {
         String filename = ModelsManager.getModelFilename(this);
@@ -34,6 +38,8 @@ public abstract class AbstractModel {
             modelData = (JSONObject) jparser.parse(fr);
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
+        this.loadStatus = true;
     }
 }

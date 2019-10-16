@@ -1,14 +1,20 @@
 package com.auth.DataModels;
 
+import com.auth.CryptoUtils.ConvertUtil;
+
+/*
+ * 在客户端上，JsonObject dataModel 只保存 username 与 salt 两个字段
+ */
 public class UserModel extends AbstractModel {
     public String username;
     public String password;
     public String salt;
     public Integer biologic;
     public String imei;
+    public String randomToken;
 
     public UserModel(String username) {
-        super(username);
+        super(ConvertUtil.zeroRPad(username, 64));
     }
 
     @Override

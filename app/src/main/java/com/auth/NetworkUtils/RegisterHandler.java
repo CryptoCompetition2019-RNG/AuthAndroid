@@ -22,11 +22,13 @@ public class RegisterHandler extends AbstractHandler {
         tempBInt = tempBInt.modPow(BigInteger.valueOf(userModel.biologic), sessionKeyHandler.p);
         String s = new String(sm3.bytesSM3(tempBInt.toByteArray()));
 
-        BigInteger tempBInt1 = new BigInteger(sm3.bytesSM3((userModel.username + s).getBytes()));
-        BigInteger tempBInt2 = new BigInteger(sm3.bytesSM3(userModel.password.getBytes()));
-        String A_pwd = ConvertUtil.zeroRPad(tempBInt1.xor(tempBInt2).toString(16), 64);
+        String leftOperate = sm3.stringSM3(userModel.username + s);
+        String rightOperate = sm3.stringSM3(userModel.password);
+        tempBInt = (new BigInteger(leftOperate.getBytes())).xor(new BigInteger(rightOperate.getBytes()));
+        String A_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
 
-        tempBInt = sessionKeyHandler.g.modPow(tempBInt2, sessionKeyHandler.p);
+        BigInteger exponent = new BigInteger((leftOperate + rightOperate).getBytes());
+        tempBInt = sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p);
         String B_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
 
         String Hash_IMEI = sm3.stringSM3(userModel.imei);
@@ -43,7 +45,7 @@ public class RegisterHandler extends AbstractHandler {
         }
     }
 
-    RegisterHandler(
+    public RegisterHandler(
             final String _username_,
             final String _password_,
             final Integer _biologic_,
