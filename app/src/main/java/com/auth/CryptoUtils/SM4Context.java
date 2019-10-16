@@ -1,17 +1,13 @@
 package com.auth.CryptoUtils;
 
 public class SM4Context {
-    public int mode;
+    public int mode = 1;
 
-    public long[] sk;
+    public long[] sk = new long[32];
 
-    public boolean isPadding;
+    public boolean isPadding = true;
 
-    public SM4Context() {
-        this.mode = 1;
-        this.isPadding = true;
-        this.sk = new long[32];
-    }
+    public boolean isHexReturn = true;
 }
 
 

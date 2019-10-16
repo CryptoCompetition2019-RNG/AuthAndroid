@@ -16,14 +16,6 @@ public class SM4Util
 		this.secretKey = secretKey;
 	}
 
-	public boolean isHexString() {
-		return hexString;
-	}
-
-	public void setHexString(boolean hexString) {
-		this.hexString = hexString;
-	}
-
 	private String secretKey = "";
 
 	public String getIv() {
@@ -36,8 +28,6 @@ public class SM4Util
 
 	private String iv = "";
 
-	private boolean hexString = false;
-
 	public SM4Util()
 	{
 	}
@@ -47,11 +37,10 @@ public class SM4Util
 		try
 		{
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_ENCRYPT;
+			ctx.mode = SM4Constant.SM4_ENCRYPT;
 
 			byte[] keyBytes;
-			if (hexString)
+			if (ctx.isHexReturn)
 			{
 				keyBytes = ConvertUtil.hexStringToBytes(secretKey);
 			}
@@ -84,11 +73,10 @@ public class SM4Util
 		try
 		{
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_DECRYPT;
+			ctx.mode = SM4Constant.SM4_DECRYPT;
 
 			byte[] keyBytes;
-			if (hexString)
+			if (ctx.isHexReturn)
 			{
 				keyBytes = ConvertUtil.hexStringToBytes(secretKey);
 			}
@@ -114,12 +102,11 @@ public class SM4Util
 		try
 		{
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_ENCRYPT;
+			ctx.mode = SM4Constant.SM4_ENCRYPT;
 
 			byte[] keyBytes;
 			byte[] ivBytes;
-			if (hexString)
+			if (ctx.isHexReturn)
 			{
 				keyBytes = ConvertUtil.hexStringToBytes(secretKey);
 				ivBytes = ConvertUtil.hexStringToBytes(iv);
@@ -154,12 +141,11 @@ public class SM4Util
 		try
 		{
 			SM4Context ctx = new SM4Context();
-			ctx.isPadding = true;
-			ctx.mode = SM4.SM4_DECRYPT;
+			ctx.mode = SM4Constant.SM4_DECRYPT;
 
 			byte[] keyBytes;
 			byte[] ivBytes;
-			if (hexString)
+			if (ctx.isHexReturn)
 			{
 				keyBytes = ConvertUtil.hexStringToBytes(secretKey);
 				ivBytes = ConvertUtil.hexStringToBytes(iv);

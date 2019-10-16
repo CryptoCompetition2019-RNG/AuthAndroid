@@ -1,34 +1,39 @@
 package com.auth.DataModels;
 
-import com.google.gson.Gson;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 public abstract class AbstractModel {
-    AbstractModel(){}
+    protected JSONObject modelData = new JSONObject();
 
-    public void saveToFile(String filename) {
-        try {
-            FileOutputStream fos = new FileOutputStream(filename);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this);
-            oos.close();
+    AbstractModel(String id) {
+        this.setUniqueIdent(id);
+    }
+
+    protected abstract String getUniqueIdent();
+
+    protected abstract void setUniqueIdent(String id);
+
+    public void saveToFile() {
+        String filename = ModelsManager.getModelFilename(this);
+        try (FileWriter fw = new FileWriter(filename)) {
+            fw.write(modelData.toString());
+            fw.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static AbstractModel loadFromFile(String filename) {
-        try {
-            FileInputStream ios = new FileInputStream(filename);
-            ObjectInputStream ois = new ObjectInputStream(ios);
-            return (AbstractModel) ois.readObject();
+    public void loadFromFile() {
+        String filename = ModelsManager.getModelFilename(this);
+        JSONParser jparser = new JSONParser();
+        try (FileReader fr = new FileReader(filename)) {
+            modelData = (JSONObject) jparser.parse(fr);
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
     }
 }
