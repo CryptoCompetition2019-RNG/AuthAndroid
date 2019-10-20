@@ -185,28 +185,23 @@ public class MainActivity extends AppCompatActivity {
          */
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             QRCodeHelper qrcodehelper = new QRCodeHelper();
-            String[] result = qrcodehelper.QRcode(data);
-            if (result[0] == "0") {
-                String id = result[1];
+            String result = qrcodehelper.QRcode(data);
+            int len = result.length();
+            if (result.charAt(len-1) == '0') {
                 startActivity(new Intent(MainActivity.this,RegisterActivity.class));
-            } else if (result[0] == "1") {
-                String id = result[1];
-                String r= result[2];
+            } else if (result.charAt(len-1) == '1') {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 在前端扫码得到字符串之后，将字符串传入创建 PcAuthHandler 对象
-                PcAuthHandler pcAuthHandler = new PcAuthHandler(id+r);
+                PcAuthHandler pcAuthHandler = new PcAuthHandler(result.substring(0,len-1));
                 // 创建完成后，判断是够创建成功（成功或失败后可以进行一些用户交互）
                 pcAuthHandler.checkStatus();
-            } else if (result[0] == "2") {
-                String id = result[1];
-                String r= result[2];
+            } else if (result.charAt(len-1) == '2') {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 扫码后把字符串传入
-                DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(id, r, "11111");
+                DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(result.substring(0,64), result.substring(64,128), "1111");
                 // 检查是否认证成功
                 dynamicAuthHandler.checkStatus();
             } else {
-                String id= result[1];
                 startActivity(new Intent(MainActivity.this,UpdateActivity.class));
             }
 

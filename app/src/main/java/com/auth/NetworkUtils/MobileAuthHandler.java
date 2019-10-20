@@ -2,9 +2,9 @@ package com.auth.NetworkUtils;
 
 import android.util.Log;
 
-import com.auth.CryptoUtils.ConvertUtil;
-import com.auth.CryptoUtils.SM3Hash;
-import com.auth.CryptoUtils.SM4Util;
+import com.auth.Wrapper.ConvertUtil;
+import com.auth.Wrapper.SM3Hash;
+import com.auth.Wrapper.SM4Util;
 import com.auth.DataModels.UserModel;
 
 import org.json.JSONObject;

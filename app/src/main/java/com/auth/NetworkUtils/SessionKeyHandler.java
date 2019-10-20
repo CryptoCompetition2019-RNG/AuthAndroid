@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.math.BigInteger;
 import java.util.Random;
 
-import com.auth.CryptoUtils.ConvertUtil;
+import com.auth.Wrapper.ConvertUtil;
 
 public class SessionKeyHandler extends AbstractHandler {
     public BigInteger p;

@@ -1,6 +1,6 @@
 package com.auth.DataModels;
 
-import com.auth.CryptoUtils.ConvertUtil;
+import com.auth.Wrapper.ConvertUtil;
 
 /*
  * 在客户端上，JsonObject dataModel 只保存 username 与 salt 两个字段

@@ -1,4 +1,4 @@
-package com.auth.CryptoUtils;
+package com.auth.Wrapper;
 
 public class SM4Context {
     public int mode = 1;

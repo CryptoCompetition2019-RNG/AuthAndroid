@@ -1,4 +1,4 @@
-package com.auth.CryptoUtils;
+package com.auth.Wrapper;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

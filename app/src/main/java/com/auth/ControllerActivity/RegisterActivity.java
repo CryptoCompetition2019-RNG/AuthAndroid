@@ -134,7 +134,8 @@ public class RegisterActivity extends AppCompatActivity {
 //                     */
 //                    saveRegisterInfo(userName, psw);
                     // 所有的注册工作会在这个对象创建的时候完成
-                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
+                    //RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
+                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, "1111");
                     // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
                     if (registerHandler.checkStatus()){
                         //注册成功后把账号传递到LoginActivity.java中

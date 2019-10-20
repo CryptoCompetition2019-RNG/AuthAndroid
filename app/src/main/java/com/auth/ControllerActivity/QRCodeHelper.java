@@ -12,11 +12,12 @@ public class QRCodeHelper {
     /**
      * 处理二维码扫描结果
      */
-    public String[] QRcode(Intent data) {
-        String[] result = new String[3];
+    public String QRcode(Intent data) {
+        //String[] result = new String[3];
+        String content = "";
         if (data != null) {
-            String content = data.getStringExtra(Constant.CODED_CONTENT);
-            result = content.split("|");
+            content = data.getStringExtra(Constant.CODED_CONTENT);
+            //result = content.split("|");
 
 //            //用默认浏览器打开扫描得到的地址
 //            Intent intent = new Intent();
@@ -25,6 +26,6 @@ public class QRCodeHelper {
 //            intent.setData(content_url);
 //            startActivity(intent);
         }
-        return result;
+        return content;
     }
 }

@@ -1,4 +1,4 @@
-package com.auth.CryptoUtils;
+package com.auth.Wrapper;
 
 public interface SM4Constant {
     int SM4_ENCRYPT = 1;

@@ -28,6 +28,7 @@
         <activity android:name="com.auth.ControllerActivity.RegisterActivity" />
         <activity android:name="com.auth.ControllerActivity.UpdateActivity" />
         <activity android:name="com.auth.ControllerActivity.ItemActivity" />
+        <activity android:name="com.auth.ControllerActivity.VerifyActivity" />
         <activity android:name="com.auth.ControllerActivity.FingerprintVerifyDialog" />
         <activity android:name="com.auth.ControllerActivity.LostFindActivity"></activity>
     </application>
