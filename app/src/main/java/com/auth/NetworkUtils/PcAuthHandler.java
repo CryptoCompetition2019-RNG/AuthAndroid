@@ -35,7 +35,7 @@ public class PcAuthHandler extends AbstractHandler {
      * @param pcMessage PC 认证时，扫二维码得到的字符串信息
      */
     public PcAuthHandler(String pcMessage) {
-        if (pcMessage.length() == 128) {
+        if (pcMessage.length() != 128) {
             Log.e("PcAuth Failed", "Please provide a 128 length message.");
             return;
         }
