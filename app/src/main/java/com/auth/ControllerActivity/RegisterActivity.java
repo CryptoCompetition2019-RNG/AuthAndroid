@@ -1,5 +1,6 @@
 package com.auth.ControllerActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -15,8 +16,10 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.CancellationSignal;
+import android.telephony.TelephonyManager;
 
 import com.auth.CryptoUtils.MD5Util;
+import com.auth.NetworkUtils.RegisterHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -126,18 +129,24 @@ public class RegisterActivity extends AppCompatActivity {
                 }else{
                     Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
                     //把账号、密码和账号标识保存到sp里面
-                    /**
-                     * 保存账号和密码到SharedPreferences中
-                     */
-                    saveRegisterInfo(userName, psw);
-                    //注册成功后把账号传递到LoginActivity.java中
-                    // 返回值到loginActivity显示
-                    Intent data = new Intent();
-                    data.putExtra("userName", userName);
-                    setResult(RESULT_OK, data);
-                    //RESULT_OK为Activity系统常量，状态码为-1，
-                    // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
-                    RegisterActivity.this.finish();
+//                    /**
+//                     * 保存账号和密码到SharedPreferences中
+//                     */
+//                    saveRegisterInfo(userName, psw);
+                    // 所有的注册工作会在这个对象创建的时候完成
+                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
+                    // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
+                    if (registerHandler.checkStatus()){
+                        //注册成功后把账号传递到LoginActivity.java中
+                        // 返回值到loginActivity显示
+                        Intent data = new Intent();
+                        data.putExtra("userName", userName);
+                        setResult(RESULT_OK, data);
+                        //RESULT_OK为Activity系统常量，状态码为-1，
+                        // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
+                        RegisterActivity.this.finish();
+                    }
+
                 }
             }
         });
@@ -166,22 +175,22 @@ public class RegisterActivity extends AppCompatActivity {
         }
         return has_userName;
     }
-    /**
-     * 保存账号和密码到SharedPreferences中SharedPreferences
-     */
-    private void saveRegisterInfo(String userName,String psw){
-        String md5Psw = MD5Util.md5(psw);//把密码用MD5加密
-        //loginInfo表示文件名, mode_private SharedPreferences sp = getSharedPreferences( );
-        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
-
-        //获取编辑器， SharedPreferences.Editor  editor -> sp.edit();
-        SharedPreferences.Editor editor=sp.edit();
-        //以用户名为key，密码为value保存在SharedPreferences中
-        //key,value,如键值对，editor.putString(用户名，密码）;
-        editor.putString(userName, md5Psw);
-        //提交修改 editor.commit();
-        editor.apply();
-    }
+//    /**
+//     * 保存账号和密码到SharedPreferences中SharedPreferences
+//     */
+//    private void saveRegisterInfo(String userName,String psw){
+//        String md5Psw = MD5Util.md5(psw);//把密码用MD5加密
+//        //loginInfo表示文件名, mode_private SharedPreferences sp = getSharedPreferences( );
+//        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
+//
+//        //获取编辑器， SharedPreferences.Editor  editor -> sp.edit();
+//        SharedPreferences.Editor editor=sp.edit();
+//        //以用户名为key，密码为value保存在SharedPreferences中
+//        //key,value,如键值对，editor.putString(用户名，密码）;
+//        editor.putString(userName, md5Psw);
+//        //提交修改 editor.commit();
+//        editor.apply();
+//    }
 
     //初始化cancellationSignal类
     private CancellationSignal cancellationSignal = new CancellationSignal();
@@ -226,4 +235,37 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(RegisterActivity.this,"识别失败，请重试！",Toast.LENGTH_SHORT).show();
         }
     };
+
+    /**
+     *
+     * @param context
+     * @return
+     */
+    @SuppressLint("MissingPermission")
+    public static String getIMEI(Context context) {
+            TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            try {
+                Method method = manager.getClass().getMethod("getImei", int.class);
+                String imei1 = (String) method.invoke(manager, 0);
+                String imei2 = (String) method.invoke(manager, 1);
+                if(TextUtils.isEmpty(imei2)){
+                    return imei1;
+                }
+                if(!TextUtils.isEmpty(imei1)){
+                    //因为手机卡插在不同位置，获取到的imei1和imei2值会交换，所以取它们的最小值,保证拿到的imei都是同一个
+                    String imei = "";
+                    if(imei1.compareTo(imei2) <= 0){
+                        imei = imei1;
+                    }else{
+                        imei = imei2;
+                    }
+                    return imei;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return manager.getDeviceId();
+            }
+            return "";
+        }
+
 }

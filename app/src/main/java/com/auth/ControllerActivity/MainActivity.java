@@ -3,7 +3,6 @@ package com.auth.ControllerActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,9 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 //import com.uuzuche.lib_zxing.activity.CaptureActivity;
-import com.auth.CryptoUtils.MD5Util;
+//import com.auth.CryptoUtils.MD5Util;
+import com.auth.NetworkUtils.MobileAuthHandler;
+import com.auth.NetworkUtils.PcAuthHandler;
+import com.auth.NetworkUtils.DynamicAuthHandler;
 import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.common.Constant;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -97,18 +98,15 @@ public class MainActivity extends AppCompatActivity {
                 //开始登录，获取用户名和密码 getText().toString().trim();
                 userName = et_user_name.getText().toString().trim();
                 psw = et_psw.getText().toString().trim();
-                //对当前用户输入的密码进行MD5加密再进行比对判断, MD5Util.md5( ); psw 进行加密判断是否一致
-                String md5Psw = MD5Util.md5(psw);
-                // md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
-                // 定义方法 readPsw为了读取用户名，得到密码
-                spPsw = readPassword(userName);
+                // 用户输入用户密码之后，直接创建这个对象，完成所有的认证工作
+                MobileAuthHandler mobileAuthHandler = new MobileAuthHandler(userName, psw);
                 // TextUtils.isEmpty
                 if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(MainActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
                 } else if (TextUtils.isEmpty(psw)) {
                     Toast.makeText(MainActivity.this, "请输入密码", Toast.LENGTH_SHORT).show();
-                    // md5Psw.equals(); 判断，输入的密码加密后，是否与保存在SharedPreferences中一致
-                } else if (md5Psw.equals(spPsw)) {
+                    // 检查是否认证成功
+                } else if ( mobileAuthHandler.checkStatus()) {
                     //一致登录成功
                     Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                     //保存登录状态，在界面保存登录的用户名 定义个方法 saveLoginStatus boolean 状态 , userName 用户名;
@@ -124,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.finish();
                     //跳转到主界面，登录成功的状态传递到 MainActivity 中
                     startActivity(new Intent(MainActivity.this, ItemActivity.class));
-                } else if ((spPsw != null && !TextUtils.isEmpty(spPsw) && !md5Psw.equals(spPsw))) {
+                } else if (!mobileAuthHandler.checkStatus()) {
                     Toast.makeText(MainActivity.this, "输入的用户名和密码不一致", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "此用户名不存在", Toast.LENGTH_SHORT).show();
@@ -133,16 +131,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * 从SharedPreferences中根据用户名读取密码
-     */
-    private String readPassword(String userName){
-        //getSharedPreferences("loginInfo",MODE_PRIVATE);
-        //"loginInfo",mode_private; MODE_PRIVATE表示可以继续写入
-        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
-        //sp.getString() userName, "";
-        return sp.getString(userName , "");
-    }
+//    /**
+//     * 从SharedPreferences中根据用户名读取密码
+//     */
+//    private String readPassword(String userName){
+//        //getSharedPreferences("loginInfo",MODE_PRIVATE);
+//        //"loginInfo",mode_private; MODE_PRIVATE表示可以继续写入
+//        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
+//        //sp.getString() userName, "";
+//        return sp.getString(userName , "");
+//    }
 
     /**
      * 保存登录状态和登录用户名到SharedPreferences中
@@ -186,15 +184,32 @@ public class MainActivity extends AppCompatActivity {
          * 处理二维码扫描结果
          */
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-            if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                //用默认浏览器打开扫描得到的地址
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse(content);
-                intent.setData(content_url);
-                startActivity(intent);
+            QRCodeHelper qrcodehelper = new QRCodeHelper();
+            String[] result = qrcodehelper.QRcode(data);
+            if (result[0] == "0") {
+                String id = result[1];
+                startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+            } else if (result[0] == "1") {
+                String id = result[1];
+                String r= result[2];
+                startActivity(new Intent(MainActivity.this,VerifyActivity.class));
+                // 在前端扫码得到字符串之后，将字符串传入创建 PcAuthHandler 对象
+                PcAuthHandler pcAuthHandler = new PcAuthHandler(id+r);
+                // 创建完成后，判断是够创建成功（成功或失败后可以进行一些用户交互）
+                pcAuthHandler.checkStatus();
+            } else if (result[0] == "2") {
+                String id = result[1];
+                String r= result[2];
+                startActivity(new Intent(MainActivity.this,VerifyActivity.class));
+                // 扫码后把字符串传入
+                DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(id, r, "11111");
+                // 检查是否认证成功
+                dynamicAuthHandler.checkStatus();
+            } else {
+                String id= result[1];
+                startActivity(new Intent(MainActivity.this,UpdateActivity.class));
             }
+
         }
     }
 
