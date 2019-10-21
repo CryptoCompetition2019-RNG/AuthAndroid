@@ -3,7 +3,6 @@ package com.auth.NetworkUtils;
 import android.util.Log;
 
 import com.auth.Wrapper.ConvertUtil;
-import com.auth.Wrapper.SM3Hash;
 import com.auth.DataModels.UserModel;
 
 import org.apache.commons.codec.binary.Hex;

@@ -7,6 +7,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Random;
 
 import com.auth.Wrapper.ConvertUtil;
@@ -61,12 +62,7 @@ public class SessionKeyHandler extends AbstractHandler {
     }
 
     public byte[] getBytesSM4Key() {
-        String sm4Key = ConvertUtil.zeroRPad(sharedSecret.toString(16), 32);
-        try {
-            return Hex.decodeHex(sm4Key);
-        } catch (DecoderException de) {
-            return null;
-        }
+        return Arrays.copyOfRange(sharedSecret.toByteArray(), 0, 16);
     }
 
     public String getSM4Key() {

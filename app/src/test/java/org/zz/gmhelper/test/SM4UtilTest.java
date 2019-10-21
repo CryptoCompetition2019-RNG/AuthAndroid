@@ -1,5 +1,6 @@
 package org.zz.gmhelper.test;
 
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +15,30 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import static org.junit.Assert.*;
+
 public class SM4UtilTest extends GMBaseTest {
+    @Test
+    public void testWithPython(){
+        String plainHex = "7a90adbc2df844d694dea1404c09926d100314d6e35b8bcff7ea68a2c0327208100314d6e35b8bcff7ea68a2c0327208100314d6e35b8bcff7ea68a2c0327208";
+        String keyHex = "0baaebf8cacdc77c1f09d91e0ccc8132";
+        String cipherHex = "4ef97098810447b3f5206183a46c7ff3896ecb2b61993db0fd579441602600c0896ecb2b61993db0fd579441602600c0896ecb2b61993db0fd579441602600c0";
+        try{
+            byte[] plainBytes = Hex.decodeHex(plainHex);
+            byte[] keyBytes = Hex.decodeHex(keyHex);
+            byte[] cipherBytes = Hex.decodeHex(cipherHex);
+            assertEquals(plainBytes.length, 64);
+            assertEquals(keyBytes.length, 16);
+            assertEquals(cipherBytes.length, 64);
+
+            byte[] solvedCipher = SM4Util.encrypt_Ecb_NoPadding(keyBytes, plainBytes);
+            assertArrayEquals(solvedCipher, cipherBytes);
+            byte[] solvedPlain = SM4Util.decrypt_Ecb_NoPadding(keyBytes, cipherBytes);
+            assertArrayEquals(solvedPlain, plainBytes);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testEncryptAndDecrypt() {

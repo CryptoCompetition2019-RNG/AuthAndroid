@@ -3,11 +3,13 @@ package com.auth.NetworkUtils;
 import android.util.Log;
 
 import com.auth.Wrapper.ConvertUtil;
-import com.auth.Wrapper.SM3Hash;
-import com.auth.Wrapper.SM4Util;
 import com.auth.DataModels.UserModel;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
+import org.zz.gmhelper.SM3Util;
+import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 
@@ -19,26 +21,25 @@ public class MobileAuthHandler extends AbstractHandler {
     private String B_pwd = null;
 
     private boolean mobileAuthCall1() {
-        SM4Util sm4 = new SM4Util();
-
-        sm4.setSecretKey(sessionKeyHandler.getSM4Key());
-        String sm4_id = sm4.encryptData_ECB(userModel.username);
-
         String plainResponse;
         try {
+            byte[] sessionSm4Key = sessionKeyHandler.getBytesSM4Key();
+            byte[] sm4_id = SM4Util.encrypt_Ecb_NoPadding(sessionSm4Key, userModel.username.getBytes());
+            assert sm4_id.length == 64;
             JSONObject request = new JSONObject();
-            request.put("data", sm4_id);
+            request.put("data", Hex.encodeHexString(sm4_id));
             JSONObject response = HttpUtil.sendPostRequest("/mobileauth_api1/", request);
             if(response == null) return false;
 
-            plainResponse = sm4.decryptData_ECB(response.getString("data"));
-            sm4.setSecretKey(userModel.salt);
+            byte[] saltSm4Key = userModel.getSaltSm4Key();
+            byte[] responseData = Hex.decodeHex(response.getString("data"));
+            plainResponse = new String(SM4Util.decrypt_Ecb_NoPadding(saltSm4Key, responseData));
         } catch (Exception e){
             e.printStackTrace();
             return false;
         }
 
-        if (plainResponse.length() == 128) return false;
+        if (plainResponse.length() != 128) return false;
 
         userModel.randomToken = plainResponse.substring(0, 64);
         A_pwd = plainResponse.substring(64);
@@ -46,25 +47,24 @@ public class MobileAuthHandler extends AbstractHandler {
     }
 
     private void calculateBpwd(){
-        SM3Hash sm3 = new SM3Hash();
-
         BigInteger A = new BigInteger(A_pwd, 16);
-        BigInteger Hpwd = new BigInteger(sm3.bytesSM3(userModel.password.getBytes()));
+        BigInteger Hpwd = new BigInteger( SM3Util.hash( userModel.password.getBytes() ));
+        BigInteger exponent = new BigInteger(
+                ByteUtils.concatenate(A.xor(Hpwd).toByteArray(), Hpwd.toByteArray())
+        );
 
         B_pwd = ConvertUtil.zeroRPad(
-                sessionKeyHandler.g.modPow(A.xor(Hpwd), sessionKeyHandler.p).toString(16), 64
+                sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p).toString(16), 64
         );
     }
 
     private boolean mobileAuthCall2() {
-        SM4Util sm4 = new SM4Util();
-
-        sm4.setSecretKey(sessionKeyHandler.getSM4Key());
-        String sm4_rB = sm4.encryptData_ECB(userModel.randomToken + B_pwd);
-
         try {
+            byte[] sm4_rB = SM4Util.encrypt_Ecb_NoPadding(
+                    sessionKeyHandler.getBytesSM4Key(), (userModel.randomToken + B_pwd).getBytes()
+            );
             JSONObject request = new JSONObject();
-            request.put("data", sm4_rB);
+            request.put("data", Hex.encodeHexString(sm4_rB));
             JSONObject response = HttpUtil.sendPostRequest("/mobileauth_api2/", request);
             return (response != null) && (response.getInt("code") == 0);
         } catch (Exception e) {
