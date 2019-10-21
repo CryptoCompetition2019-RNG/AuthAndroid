@@ -2,11 +2,12 @@ package com.auth.NetworkUtils;
 
 import android.util.Log;
 
-import com.auth.Wrapper.SM3Hash;
-import com.auth.Wrapper.SM4Util;
 import com.auth.DataModels.UserModel;
 
+import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
+import org.zz.gmhelper.SM3Util;
+import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 
@@ -14,21 +15,21 @@ public class DynamicAuthHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
     private UserModel userModel;
 
-    private String qrMessage;
+    private byte[] qrMessage;
 
     private boolean dynamicAuthCall2(){
-        SM4Util sm4 = new SM4Util();
-        SM3Hash sm3 = new SM3Hash();
-
-        sm4.setSecretKey(userModel.salt);
-        userModel.randomToken = sm4.decryptData_ECB(qrMessage);
-
-        sm4.setSecretKey(sessionKeyHandler.getSM4Key());
-        String sm4_hir = sm4.encryptData_ECB(sm3.stringSM3(userModel.imei.toString(16)) + userModel.randomToken);
-
         try {
+            userModel.randomToken = new String(SM4Util.decrypt_Ecb_NoPadding(userModel.getSaltSm4Key(), qrMessage));
+
+            String hashImei = Hex.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
+            byte[] plainData = (userModel.username + hashImei + userModel.randomToken).getBytes();
+            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getBytesSM4Key(), plainData);
+//            System.out.println(String.format("plain: %s", Hex.encodeHexString(plainData)));
+//            System.out.println(String.format("key: %s", Hex.encodeHexString(sessionKeyHandler.getBytesSM4Key())));
+//            System.out.println(String.format("cipher: %s", Hex.encodeHexString(cipherData)));
+
             JSONObject request = new JSONObject();
-            request.put("data", sm4_hir);
+            request.put("data", Hex.encodeHexString(cipherData));
             JSONObject response = HttpUtil.sendPostRequest("/dynamicauth_api2/", request);
             return (response != null) && (response.getInt("code") == 0);
         } catch (Exception e) {
@@ -43,7 +44,7 @@ public class DynamicAuthHandler extends AbstractHandler {
      */
     public DynamicAuthHandler(
             String _username_,
-            String _qrMessage_,
+            byte[] _qrMessage_,
             BigInteger _imei_
     ){
         sessionKeyHandler = new SessionKeyHandler();

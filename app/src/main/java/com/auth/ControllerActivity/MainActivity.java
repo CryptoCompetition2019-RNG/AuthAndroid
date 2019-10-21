@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 扫码后把字符串传入
                 DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(
-                        result.substring(0,64), result.substring(64,128), BigInteger.valueOf(0x7fff)
+                        result.substring(0,64), result.substring(64,128).getBytes(), BigInteger.valueOf(0x7fff)
                 );
                 // 检查是否认证成功
                 dynamicAuthHandler.checkStatus();
