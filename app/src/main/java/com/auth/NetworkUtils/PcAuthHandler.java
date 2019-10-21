@@ -2,29 +2,31 @@ package com.auth.NetworkUtils;
 
 import android.util.Log;
 
-import com.auth.Wrapper.SM4Util;
 import com.auth.DataModels.UserModel;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
+import org.zz.gmhelper.SM4Util;
 
 public class PcAuthHandler extends AbstractHandler {
     private UserModel userModel;
     private SessionKeyHandler sessionKeyHandler;
 
     private boolean pcAuthCall1() {
-        SM4Util sm4 = new SM4Util();
-
-        sm4.setSecretKey(userModel.salt);
-        String sm4_r1 = sm4.encryptData_ECB(userModel.randomToken);
-
-        sm4.setSecretKey(sessionKeyHandler.getSM4Key());
-        String sm4_id = sm4.encryptData_ECB(userModel.username);
-
         try {
+            byte[] sm4_salt_r1 = SM4Util.encrypt_Ecb_NoPadding(
+                    userModel.getSaltSm4Key(), userModel.randomToken.getBytes()
+            );
+            byte[] sm4_dh_id = SM4Util.encrypt_Ecb_NoPadding(
+                    sessionKeyHandler.getBytesSM4Key(), userModel.username.getBytes()
+            );
+            String message = Hex.encodeHexString(ByteUtils.concatenate(sm4_dh_id, sm4_salt_r1));
+
             JSONObject request = new JSONObject();
-            request.put("data", sm4_r1 + sm4_id);
+            request.put("data", message);
             JSONObject response = HttpUtil.sendPostRequest("/pcauth_api1/", request);
-            return (response != null) && (response.getInt("data") == 0);
+            return (response != null) && (response.getInt("code") == 0);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

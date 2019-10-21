@@ -3,8 +3,13 @@ package com.auth.DataModels;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Scanner;
 
 public abstract class AbstractModel {
     protected boolean loadStatus = false;
@@ -33,10 +38,10 @@ public abstract class AbstractModel {
 
     public void loadFromFile() {
         String filename = ModelsManager.getModelFilename(this);
-        JSONParser jparser = new JSONParser();
-        try (FileReader fr = new FileReader(filename)) {
-            modelData = (JSONObject) jparser.parse(fr);
-        } catch (Exception e) {
+        try {
+            String content = new Scanner(new File(filename)).useDelimiter("\\Z").next();
+            modelData = new JSONObject(content);
+        } catch (Exception e){
             e.printStackTrace();
             return;
         }

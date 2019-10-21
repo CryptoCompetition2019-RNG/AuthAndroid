@@ -2,6 +2,9 @@ package com.auth.DataModels;
 
 import com.auth.Wrapper.ConvertUtil;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+
 import java.math.BigInteger;
 
 /*
@@ -48,6 +51,14 @@ public class UserModel extends AbstractModel {
             salt = this.modelData.getString("salt");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public byte[] getSaltSm4Key() {
+        try {
+            return Hex.decodeHex(ConvertUtil.zeroRPad(salt, 32));
+        } catch (DecoderException de){
+            return null;
         }
     }
 }

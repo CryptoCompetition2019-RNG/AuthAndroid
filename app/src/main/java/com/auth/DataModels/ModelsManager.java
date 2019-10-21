@@ -1,5 +1,8 @@
 package com.auth.DataModels;
 
+import org.apache.commons.codec.binary.Hex;
+import org.zz.gmhelper.SM3Util;
+
 import java.util.HashMap;
 
 public class ModelsManager {
@@ -13,6 +16,7 @@ public class ModelsManager {
     }
 
     public static String getModelFilename(AbstractModel model) {
-        return model.getClass().toString() + "/" + model.getUniqueIdent();
+        byte[] filename = SM3Util.hash(model.getUniqueIdent().getBytes());
+        return "UserModelSavedMessage/" + Hex.encodeHexString(filename);
     }
 }

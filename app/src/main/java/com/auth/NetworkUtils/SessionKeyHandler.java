@@ -10,7 +10,6 @@ import java.math.BigInteger;
 import java.util.Random;
 
 import com.auth.Wrapper.ConvertUtil;
-import com.orhanobut.logger.Logger;
 
 public class SessionKeyHandler extends AbstractHandler {
     public BigInteger p;

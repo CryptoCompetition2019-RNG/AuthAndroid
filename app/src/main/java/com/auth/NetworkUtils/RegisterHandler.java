@@ -78,6 +78,7 @@ public class RegisterHandler extends AbstractHandler {
             Log.e("Register Failed", "Failed when request");
             return;
         }
+        userModel.saveToFile();
         this.compeleteStatus = true;
     }
 }
