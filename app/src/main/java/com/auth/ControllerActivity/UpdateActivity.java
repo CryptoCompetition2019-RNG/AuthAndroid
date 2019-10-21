@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.auth.CryptoUtils.MD5Util;
+import com.auth.Wrapper.MD5Util;
 
 public class UpdateActivity extends AppCompatActivity {
 

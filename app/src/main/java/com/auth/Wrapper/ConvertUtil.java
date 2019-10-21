@@ -17,7 +17,7 @@ public class ConvertUtil {
         bytes[0] = (byte) (0xff & (num >> 0));  
         bytes[1] = (byte) (0xff & (num >> 8));  
         bytes[2] = (byte) (0xff & (num >> 16));  
-        bytes[3] = (byte) (0xff & (num >> 24));  
+        bytes[3] = (byte) (0xff & (num >> 24));
         return bytes;  
     }  
   
@@ -40,7 +40,7 @@ public class ConvertUtil {
         temp = (0x000000ff & (bytes[3])) << 24;  
         num = num | temp;  
         return num;  
-    }  
+    }
   
     /** 
      * 长整形转换成网络传输的字节流（字节数组）型数据 
@@ -643,7 +643,9 @@ public class ConvertUtil {
     }
 
     public static String zeroRPad(String src, Integer length) {
-        Assert.assertTrue(src.length() <= length);
+        if(src.length() > length) {
+            src = src.substring(0, length);
+        }
         return String.format("%-" + length + "s", src).replace(" ", "0");
     }
 }

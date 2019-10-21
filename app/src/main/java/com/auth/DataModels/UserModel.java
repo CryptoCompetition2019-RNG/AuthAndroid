@@ -2,6 +2,8 @@ package com.auth.DataModels;
 
 import com.auth.Wrapper.ConvertUtil;
 
+import java.math.BigInteger;
+
 /*
  * 在客户端上，JsonObject dataModel 只保存 username 与 salt 两个字段
  */
@@ -9,8 +11,8 @@ public class UserModel extends AbstractModel {
     public String username;
     public String password;
     public String salt;
-    public Integer biologic;
-    public String imei;
+    public BigInteger biologic;
+    public BigInteger imei;
     public String randomToken;
 
     public UserModel(String username) {

@@ -6,7 +6,11 @@ import com.auth.Wrapper.ConvertUtil;
 import com.auth.Wrapper.SM3Hash;
 import com.auth.DataModels.UserModel;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
+import org.zz.gmhelper.SM3Util;
+import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -16,26 +20,28 @@ public class RegisterHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
 
     private boolean registerCall() {
-        SM3Hash sm3 = new SM3Hash();
-
         BigInteger tempBInt = new BigInteger((userModel.password + userModel.salt).getBytes());
-        tempBInt = tempBInt.modPow(BigInteger.valueOf(userModel.biologic), sessionKeyHandler.p);
-        String s = new String(sm3.bytesSM3(tempBInt.toByteArray()));
+        tempBInt = tempBInt.modPow(userModel.biologic, sessionKeyHandler.p);
+        String s = new String(SM3Util.hash(tempBInt.toByteArray()));
 
-        String leftOperate = sm3.stringSM3(userModel.username + s);
-        String rightOperate = sm3.stringSM3(userModel.password);
-        tempBInt = (new BigInteger(leftOperate.getBytes())).xor(new BigInteger(rightOperate.getBytes()));
+        byte[] leftOperate = SM3Util.hash( (userModel.username + s).getBytes() );
+        byte[] rightOperate = SM3Util.hash( userModel.password.getBytes() );
+
+        tempBInt = (new BigInteger(leftOperate)).xor(new BigInteger(rightOperate));
         String A_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
 
-        BigInteger exponent = new BigInteger((leftOperate + rightOperate).getBytes());
+        BigInteger exponent = new BigInteger(ByteUtils.concatenate(leftOperate, rightOperate));
         tempBInt = sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p);
         String B_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
 
-        String Hash_IMEI = sm3.stringSM3(userModel.imei);
+        String hexHashImei = Hex.encodeHexString(SM3Util.hash(userModel.imei.toByteArray()));
 
         try {
             JSONObject request = new JSONObject();
-            request.put("data", userModel.username + userModel.salt + A_pwd + B_pwd + Hash_IMEI);
+            byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes();
+            byte[] sm4Key = sessionKeyHandler.getBytesSM4Key();
+            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4Key, plainData);
+            request.put("data", Hex.encodeHexString(cipherData));
 
             JSONObject response = HttpUtil.sendPostRequest("/register_api/", request);
             return (response != null) && response.getInt("code") == 0;
@@ -48,8 +54,8 @@ public class RegisterHandler extends AbstractHandler {
     public RegisterHandler(
             final String _username_,
             final String _password_,
-            final Integer _biologic_,
-            final String _imei_
+            final BigInteger _biologic_,
+            final BigInteger _imei_
     ) {
         sessionKeyHandler = new SessionKeyHandler();
         if (!sessionKeyHandler.checkStatus()) {

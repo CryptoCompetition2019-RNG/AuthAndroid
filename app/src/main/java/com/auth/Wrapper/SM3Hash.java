@@ -27,27 +27,6 @@ public class SM3Hash {
     }
 
     /**
-     * byte[] hash1 = (new SM3Hash()).fileSM3(filePath);
-     */
-    public String fileSM3(String filePath) {
-        byte[] bs = null;
-        try {
-            //�����ļ�
-            File infile = new File(filePath);
-            InputStream inputStream = new FileInputStream(infile);
-            bs = new byte[(int) infile.length()];
-            inputStream.read(bs);
-            inputStream.close();
-            //ȡHash
-            byte[] Hash = bytesSM3(bs);
-            return ConvertUtil.getHexString(Hash);
-        } catch (Exception e) {
-            System.out.println("Exception " + e);
-            return null;
-        }
-    }
-
-    /**
      * byte[] hash1 = (new SM3Hash()).stringSM3(msg);
      */
     public String stringSM3(String input) {

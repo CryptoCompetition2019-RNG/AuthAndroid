@@ -19,6 +19,8 @@ import com.auth.NetworkUtils.PcAuthHandler;
 import com.auth.NetworkUtils.DynamicAuthHandler;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 
+import java.math.BigInteger;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -198,7 +200,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (result.charAt(len-1) == '2') {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 扫码后把字符串传入
-                DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(result.substring(0,64), result.substring(64,128), "1111");
+                DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(
+                        result.substring(0,64), result.substring(64,128), BigInteger.valueOf(0x7fff)
+                );
                 // 检查是否认证成功
                 dynamicAuthHandler.checkStatus();
             } else {

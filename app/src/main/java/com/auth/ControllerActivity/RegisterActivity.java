@@ -18,13 +18,14 @@ import android.content.Context;
 import android.os.CancellationSignal;
 import android.telephony.TelephonyManager;
 
-import com.auth.CryptoUtils.MD5Util;
+import com.auth.Wrapper.MD5Util;
 import com.auth.NetworkUtils.RegisterHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -135,7 +136,7 @@ public class RegisterActivity extends AppCompatActivity {
 //                    saveRegisterInfo(userName, psw);
                     // 所有的注册工作会在这个对象创建的时候完成
                     //RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
-                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, "1111");
+                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, BigInteger.valueOf(1), BigInteger.valueOf(0x7fff));
                     // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
                     if (registerHandler.checkStatus()){
                         //注册成功后把账号传递到LoginActivity.java中

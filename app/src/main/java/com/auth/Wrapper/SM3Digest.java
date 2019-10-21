@@ -85,7 +85,7 @@ public class SM3Digest {
     }
 
     private void doUpdate() {
-        byte[] B = new byte[BLOCK_LENGTH];
+        byte[] B = new byte[BLOCK_LENGTH + 1];
         for (int i = 0; i < BLOCK_LENGTH + 1; i += BLOCK_LENGTH) {
             System.arraycopy(xBuf, i, B, 0, B.length);
             doHash(B);

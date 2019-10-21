@@ -8,6 +8,8 @@ import com.auth.DataModels.UserModel;
 
 import org.json.JSONObject;
 
+import java.math.BigInteger;
+
 public class DynamicAuthHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
     private UserModel userModel;
@@ -22,7 +24,7 @@ public class DynamicAuthHandler extends AbstractHandler {
         userModel.randomToken = sm4.decryptData_ECB(qrMessage);
 
         sm4.setSecretKey(sessionKeyHandler.getSM4Key());
-        String sm4_hir = sm4.encryptData_ECB(sm3.stringSM3(userModel.imei) + userModel.randomToken);
+        String sm4_hir = sm4.encryptData_ECB(sm3.stringSM3(userModel.imei.toString(16)) + userModel.randomToken);
 
         try {
             JSONObject request = new JSONObject();
@@ -42,7 +44,7 @@ public class DynamicAuthHandler extends AbstractHandler {
     public DynamicAuthHandler(
             String _username_,
             String _qrMessage_,
-            String _imei_
+            BigInteger _imei_
     ){
         sessionKeyHandler = new SessionKeyHandler();
         if(!sessionKeyHandler.checkStatus()){
