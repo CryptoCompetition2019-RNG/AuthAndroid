@@ -38,7 +38,7 @@ public class RegisterHandler extends AbstractHandler {
         try {
             JSONObject request = new JSONObject();
             byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes();
-            byte[] sm4Key = sessionKeyHandler.getBytesSM4Key();
+            byte[] sm4Key = sessionKeyHandler.getSessionSM4Key();
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4Key, plainData);
             request.put("data", Hex.encodeHexString(cipherData));
 

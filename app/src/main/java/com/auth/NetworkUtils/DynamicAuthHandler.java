@@ -23,10 +23,7 @@ public class DynamicAuthHandler extends AbstractHandler {
 
             String hashImei = Hex.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
             byte[] plainData = (userModel.username + hashImei + userModel.randomToken).getBytes();
-            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getBytesSM4Key(), plainData);
-//            System.out.println(String.format("plain: %s", Hex.encodeHexString(plainData)));
-//            System.out.println(String.format("key: %s", Hex.encodeHexString(sessionKeyHandler.getBytesSM4Key())));
-//            System.out.println(String.format("cipher: %s", Hex.encodeHexString(cipherData)));
+            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getSessionSM4Key(), plainData);
 
             JSONObject request = new JSONObject();
             request.put("data", Hex.encodeHexString(cipherData));

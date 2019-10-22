@@ -23,7 +23,7 @@ public class MobileAuthHandler extends AbstractHandler {
     private boolean mobileAuthCall1() {
         String plainResponse;
         try {
-            byte[] sessionSm4Key = sessionKeyHandler.getBytesSM4Key();
+            byte[] sessionSm4Key = sessionKeyHandler.getSessionSM4Key();
             byte[] sm4_id = SM4Util.encrypt_Ecb_NoPadding(sessionSm4Key, userModel.username.getBytes());
             assert sm4_id.length == 64;
             JSONObject request = new JSONObject();
@@ -48,9 +48,9 @@ public class MobileAuthHandler extends AbstractHandler {
 
     private void calculateBpwd(){
         BigInteger A = new BigInteger(A_pwd, 16);
-        BigInteger Hpwd = new BigInteger( SM3Util.hash( userModel.password.getBytes() ));
+        BigInteger hashPassword = new BigInteger( SM3Util.hash( userModel.password.getBytes() ));
         BigInteger exponent = new BigInteger(
-                ByteUtils.concatenate(A.xor(Hpwd).toByteArray(), Hpwd.toByteArray())
+                ByteUtils.concatenate(A.xor(hashPassword).toByteArray(), hashPassword.toByteArray())
         );
 
         B_pwd = ConvertUtil.zeroRPad(
@@ -61,7 +61,7 @@ public class MobileAuthHandler extends AbstractHandler {
     private boolean mobileAuthCall2() {
         try {
             byte[] sm4_rB = SM4Util.encrypt_Ecb_NoPadding(
-                    sessionKeyHandler.getBytesSM4Key(), (userModel.randomToken + B_pwd).getBytes()
+                    sessionKeyHandler.getSessionSM4Key(), (userModel.randomToken + B_pwd).getBytes()
             );
             JSONObject request = new JSONObject();
             request.put("data", Hex.encodeHexString(sm4_rB));

@@ -61,11 +61,7 @@ public class SessionKeyHandler extends AbstractHandler {
         this.compeleteStatus = true;
     }
 
-    public byte[] getBytesSM4Key() {
+    public byte[] getSessionSM4Key() {
         return Arrays.copyOfRange(sharedSecret.toByteArray(), 0, 16);
-    }
-
-    public String getSM4Key() {
-        return ConvertUtil.zeroRPad(sharedSecret.toString(16).substring(64), 64);
     }
 }

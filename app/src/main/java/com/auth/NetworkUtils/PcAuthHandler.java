@@ -15,13 +15,13 @@ public class PcAuthHandler extends AbstractHandler {
 
     private boolean pcAuthCall1() {
         try {
-            byte[] sm4_salt_r1 = SM4Util.encrypt_Ecb_NoPadding(
+            byte[] cipher2 = SM4Util.encrypt_Ecb_NoPadding(
                     userModel.getSaltSm4Key(), userModel.randomToken.getBytes()
             );
-            byte[] sm4_dh_id = SM4Util.encrypt_Ecb_NoPadding(
-                    sessionKeyHandler.getBytesSM4Key(), userModel.username.getBytes()
+            byte[] cipher1 = SM4Util.encrypt_Ecb_NoPadding(
+                    sessionKeyHandler.getSessionSM4Key(), userModel.username.getBytes()
             );
-            String message = Hex.encodeHexString(ByteUtils.concatenate(sm4_dh_id, sm4_salt_r1));
+            String message = Hex.encodeHexString(ByteUtils.concatenate(cipher1, cipher2));
 
             JSONObject request = new JSONObject();
             request.put("data", message);

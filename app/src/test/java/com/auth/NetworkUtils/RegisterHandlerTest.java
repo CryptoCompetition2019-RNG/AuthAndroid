@@ -19,7 +19,6 @@ public class RegisterHandlerTest {
         // BigInteger IMEI = BigInteger.valueOf(telephonyManager.getDeviceId());
         BigInteger fake_IMEI = BigInteger.valueOf(0x7fff);
 
-        System.out.println(String.format("Message. username: %s; password: %s", username, password));
         RegisterHandler registerHandler = new RegisterHandler(username, password, biologic, fake_IMEI);
         assertTrue(registerHandler.checkStatus());
     }
