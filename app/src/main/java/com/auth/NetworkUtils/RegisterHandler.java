@@ -32,8 +32,7 @@ public class RegisterHandler extends AbstractHandler {
         byte[] rightOperate = SM3Util.hash(userModel.password.getBytes(StandardCharsets.US_ASCII));
 
         tempBInt = (new BigInteger(leftOperate)).xor(new BigInteger(rightOperate));
-        byte[] temp = ConvertUtil.zeroRPad(tempBInt, 32);
-        String A_pwd = Hex.encodeHexString(temp);
+        String A_pwd = Hex.encodeHexString(ConvertUtil.zeroRPad(tempBInt, 32));
         // info: A_pwd.length() == 64
 
         BigInteger exponent = new BigInteger(ByteUtils.concatenate(leftOperate, rightOperate));

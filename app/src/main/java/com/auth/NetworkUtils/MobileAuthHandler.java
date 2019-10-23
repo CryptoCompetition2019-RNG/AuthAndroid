@@ -53,11 +53,12 @@ public class MobileAuthHandler extends AbstractHandler {
     private void calculateBpwd(){
         BigInteger A = new BigInteger(A_pwd, 16);
         BigInteger hashPassword = new BigInteger(
-                SM3Util.hash( userModel.password.getBytes(StandardCharsets.US_ASCII) )
+                SM3Util.hash( userModel.password.getBytes() )
         );
-        BigInteger exponent = new BigInteger(
-                ByteUtils.concatenate(A.xor(hashPassword).toByteArray(), hashPassword.toByteArray())
-        );
+        BigInteger exponent = new BigInteger(ByteUtils.concatenate(
+                ConvertUtil.zeroRPad(A.xor(hashPassword), 32),
+                ConvertUtil.zeroRPad(hashPassword.toByteArray(), 32)
+        ));
 
         B_pwd = ConvertUtil.zeroRPad(
                 sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p).toString(16), 64

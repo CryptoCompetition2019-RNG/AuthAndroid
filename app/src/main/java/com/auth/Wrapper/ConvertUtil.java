@@ -17,10 +17,10 @@ public class ConvertUtil {
     }
 
     public static byte[] zeroRPad(byte[] src, Integer length) {
-        if(src.length > length) {
+        if(src.length >= length) {
             return Arrays.copyOfRange(src, 0, length);
         } else {
-            String srcStr = new String(src);
+            String srcStr = new String(src, StandardCharsets.US_ASCII);
             String dstStr = String.format("%-" + length + "s", srcStr).replace(" ", "0");
             return dstStr.getBytes(StandardCharsets.US_ASCII);
         }
