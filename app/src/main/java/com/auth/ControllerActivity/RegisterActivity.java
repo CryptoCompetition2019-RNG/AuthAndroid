@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 
+import static junit.framework.Assert.assertTrue;
+
 public class RegisterActivity extends AppCompatActivity {
 
     //用户名，密码，再次输入的密码的控件
@@ -106,10 +108,19 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+//                String username = "shesl-meow";
+//                String password = "shesl-meow";
+//                BigInteger biologic = BigInteger.valueOf(0x1);
+//                BigInteger fake_IMEI = BigInteger.valueOf(0x7fff);
+//                Toast.makeText(RegisterActivity.this, "123456", Toast.LENGTH_SHORT).show();
+//                RegisterHandler registerHandler = new RegisterHandler(username, password, biologic, fake_IMEI);
+//                if(registerHandler.checkStatus()) {
+//                    Toast.makeText(RegisterActivity.this, "error", Toast.LENGTH_SHORT).show();
+//                }
+
                 //获取输入在相应控件中的字符串
                 getEditString();
                 //判断输入框内容
-
                 if(TextUtils.isEmpty(userName)){
                     Toast.makeText(RegisterActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
 
@@ -120,25 +131,17 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(RegisterActivity.this, "请再次输入密码", Toast.LENGTH_SHORT).show();
                 } else if(!psw.equals(pswAgain)){
                     Toast.makeText(RegisterActivity.this, "输入两次的密码不一样", Toast.LENGTH_SHORT).show();
-
-                    /**
-                     *从SharedPreferences中读取输入的用户名，判断SharedPreferences中是否有此用户名
-                     */
-                }else if(isExistUserName(userName)){
-                    Toast.makeText(RegisterActivity.this, "此账户名已经存在", Toast.LENGTH_SHORT).show();
-
-                }else{
-                    Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
-                    //把账号、密码和账号标识保存到sp里面
-//                    /**
-//                     * 保存账号和密码到SharedPreferences中
-//                     */
-//                    saveRegisterInfo(userName, psw);
+                } else if(psw.length() < 8){
+                    Toast.makeText(RegisterActivity.this, "密码强度小于8位，请重新输入", Toast.LENGTH_SHORT).show();
+                } else if(psw.matches("^[A-Za-z]+$") || psw.matches("^[0-9]*$")){
+                    Toast.makeText(RegisterActivity.this, "密码应设置为数字和字母的组合", Toast.LENGTH_SHORT).show();
+                } else{
                     // 所有的注册工作会在这个对象创建的时候完成
                     //RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
                     RegisterHandler registerHandler = new RegisterHandler(userName, psw, BigInteger.valueOf(1), BigInteger.valueOf(0x7fff));
                     // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
                     if (registerHandler.checkStatus()){
+                        Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
                         //注册成功后把账号传递到LoginActivity.java中
                         // 返回值到loginActivity显示
                         Intent data = new Intent();
@@ -147,6 +150,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //RESULT_OK为Activity系统常量，状态码为-1，
                         // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
                         RegisterActivity.this.finish();
+                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                     }
 
                 }

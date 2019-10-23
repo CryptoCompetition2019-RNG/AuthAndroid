@@ -2,15 +2,15 @@ package com.auth.NetworkUtils;
 
 import android.util.Log;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import com.auth.Wrapper.ConvertUtil;
+import com.auth.Wrapper.ThreadWrapper;
 
 public class SessionKeyHandler extends AbstractHandler {
     public BigInteger p;
@@ -48,20 +48,28 @@ public class SessionKeyHandler extends AbstractHandler {
         }
     }
 
-    SessionKeyHandler() {
-        if (!negotiateCall1()) {
-            Log.e("Negotiate Failed", "Negotiate DH key failed at step 1.");
-            return;
-        }
-        this.mySecret = new BigInteger(256, new Random());
-        if (!negotiateCall2()) {
-            Log.e("Negotiate Failed", "Negotiate DH key failed at step 2.");
-            return;
-        }
-        this.compeleteStatus = true;
+    SessionKeyHandler(Consumer<AbstractHandler> successCallBack) {
+        handleThread = ThreadWrapper.getTimeoutAyncThread(() ->{
+            if (!negotiateCall1()) {
+                Log.e("Negotiate Failed", "Negotiate DH key failed at step 1.");
+                return;
+            }
+            this.mySecret = new BigInteger(256, new Random());
+            if (!negotiateCall2()) {
+                Log.e("Negotiate Failed", "Negotiate DH key failed at step 2.");
+                return;
+            }
+            this.compeleteStatus = true;
+            successCallBack.accept(this);
+        }, 0);
+        handleThread.start();
     }
 
     public byte[] getSessionSM4Key() {
-        return Arrays.copyOfRange(sharedSecret.toByteArray(), 0, 16);
+        byte[] bintArray = sharedSecret.toByteArray();
+        if (bintArray[0] == 0) {
+            bintArray = Arrays.copyOfRange(bintArray, 1, bintArray.length);
+        }
+        return ConvertUtil.zeroRPad(bintArray, 16);
     }
 }

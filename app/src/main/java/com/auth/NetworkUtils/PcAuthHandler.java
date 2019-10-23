@@ -42,7 +42,7 @@ public class PcAuthHandler extends AbstractHandler {
             return;
         }
 
-        sessionKeyHandler = new SessionKeyHandler();
+        sessionKeyHandler = new SessionKeyHandler((AbstractHandler caller) -> {});
         if (!sessionKeyHandler.checkStatus()) {
             Log.e("PcAuth Failed", "Failed when negotiate session key.");
             return;

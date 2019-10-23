@@ -36,12 +36,18 @@ public class RegisterHandler extends AbstractHandler {
         String hexHashImei = Hex.encodeHexString(SM3Util.hash(userModel.imei.toByteArray()));
 
         try {
-            JSONObject request = new JSONObject();
             byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes();
-            byte[] sm4Key = sessionKeyHandler.getSessionSM4Key();
-            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4Key, plainData);
-            request.put("data", Hex.encodeHexString(cipherData));
+            byte[] sm4SessionKey = sessionKeyHandler.getSessionSM4Key();
+            byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4SessionKey, plainData);
 
+            System.out.println(String.format("shared %s",
+                    Hex.encodeHexString(sessionKeyHandler.sharedSecret.toByteArray()))
+            );
+            System.out.println(String.format("key: %s", Hex.encodeHexString(sm4SessionKey)));
+            System.out.println(String.format("cipher: %s", Hex.encodeHexString(cipherData)));
+            JSONObject request = new JSONObject(){{
+                put("data", Hex.encodeHexString(cipherData));
+            }};
             JSONObject response = HttpUtil.sendPostRequest("/register_api/", request);
             return (response != null) && response.getInt("code") == 0;
         } catch (Exception e) {
@@ -56,7 +62,7 @@ public class RegisterHandler extends AbstractHandler {
             final BigInteger _biologic_,
             final BigInteger _imei_
     ) {
-        sessionKeyHandler = new SessionKeyHandler();
+        sessionKeyHandler = new SessionKeyHandler((AbstractHandler caller) -> {});
         if (!sessionKeyHandler.checkStatus()) {
             Log.e("Register Failed", "Failed when negotiate session key");
             return;

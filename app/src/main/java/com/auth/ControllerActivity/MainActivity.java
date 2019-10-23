@@ -14,12 +14,17 @@ import android.widget.Toast;
 
 //import com.uuzuche.lib_zxing.activity.CaptureActivity;
 //import com.auth.CryptoUtils.MD5Util;
+import com.auth.DataModels.UserModel;
 import com.auth.NetworkUtils.MobileAuthHandler;
 import com.auth.NetworkUtils.PcAuthHandler;
 import com.auth.NetworkUtils.DynamicAuthHandler;
+import com.auth.Wrapper.ConvertUtil;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 
+import org.zz.gmhelper.SM4Util;
+
 import java.math.BigInteger;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -196,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 // 在前端扫码得到字符串之后，将字符串传入创建 PcAuthHandler 对象
                 PcAuthHandler pcAuthHandler = new PcAuthHandler(result.substring(0,len-1));
                 // 创建完成后，判断是够创建成功（成功或失败后可以进行一些用户交互）
-                pcAuthHandler.checkStatus();
+                //pcAuthHandler.checkStatus();
             } else if (result.charAt(len-1) == '2') {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 扫码后把字符串传入
@@ -204,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                         result.substring(0,64), result.substring(64,128).getBytes(), BigInteger.valueOf(0x7fff)
                 );
                 // 检查是否认证成功
-                dynamicAuthHandler.checkStatus();
+                //dynamicAuthHandler.checkStatus();
             } else {
                 startActivity(new Intent(MainActivity.this,UpdateActivity.class));
             }

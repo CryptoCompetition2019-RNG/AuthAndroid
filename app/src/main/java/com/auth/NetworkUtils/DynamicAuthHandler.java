@@ -44,7 +44,7 @@ public class DynamicAuthHandler extends AbstractHandler {
             byte[] _qrMessage_,
             BigInteger _imei_
     ){
-        sessionKeyHandler = new SessionKeyHandler();
+        sessionKeyHandler = new SessionKeyHandler((AbstractHandler caller) -> {});
         if(!sessionKeyHandler.checkStatus()){
             Log.e("DynamicAuth Failed", "Failed when negotiate session key.");
             return;

@@ -74,7 +74,7 @@ public class MobileAuthHandler extends AbstractHandler {
     }
 
     public MobileAuthHandler(final String _username_, final String _password_){
-        sessionKeyHandler = new SessionKeyHandler();
+        sessionKeyHandler = new SessionKeyHandler((AbstractHandler caller) -> {});
         if(!sessionKeyHandler.checkStatus()){
             Log.e("MobileAuth Failed", "Failed when negotiate session key.");
             return;
