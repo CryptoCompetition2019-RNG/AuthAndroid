@@ -18,9 +18,9 @@ public class RegisterHandlerTest {
         String _username_ = "shesl-meow";
         String _password_ = "shesl-meow";
         BigInteger _biologic_ = BigInteger.valueOf(0x1);
-        // 获取 IMEI 码应该写 Activity 里面（需要调用父类方法）：
-        // TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        // BigInteger IMEI = BigInteger.valueOf(telephonyManager.getDeviceId());
+        // todo: 获取 IMEI 码应该写 Activity 里面（需要调用父类方法）：
+        //  TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        //  BigInteger IMEI = BigInteger.valueOf(telephonyManager.getDeviceId());
         BigInteger fake_IMEI = BigInteger.valueOf(0x7fff);
 
         UserModel userModel = new UserModel(ConvertUtil.zeroRPad(_username_, 64)) {

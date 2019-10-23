@@ -5,6 +5,7 @@ import android.util.Log;
 import com.auth.DataModels.UserModel;
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
 import org.zz.gmhelper.SM3Util;
 import org.zz.gmhelper.SM4Util;
@@ -21,10 +22,12 @@ public class DynamicAuthHandler extends AbstractHandler {
 
     private boolean dynamicAuthCall2(){
         try {
-            userModel.randomToken = new String(SM4Util.decrypt_Ecb_NoPadding(userModel.getSaltSm4Key(), qrMessage));
+            userModel.randomToken = SM4Util.decrypt_Ecb_NoPadding(userModel.getSaltSm4Key(), qrMessage);
 
             String hashImei = Hex.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
-            byte[] plainData = (userModel.username + hashImei + userModel.randomToken).getBytes(StandardCharsets.US_ASCII);
+            byte[] plainData = ByteUtils.concatenate(
+                    (userModel.username + hashImei).getBytes(StandardCharsets.US_ASCII), userModel.randomToken
+            );
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getSessionSM4Key(), plainData);
 
             JSONObject request = new JSONObject();

@@ -21,7 +21,7 @@ public class DynamicAuthHandlerTest {
         UserModel userModel = new UserModel(username);
         userModel.loadFromFile();
         assertTrue(userModel.checkLoaded());
-        // todo 获取 IMEI 码应该写 Activity 里面（需要调用父类方法）：
+        // todo: 获取 IMEI 码应该写 Activity 里面（需要调用父类方法）：
         //  TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         //  BigInteger IMEI = BigInteger.valueOf(telephonyManager.getDeviceId());
         BigInteger fake_IMEI = BigInteger.valueOf(0x7fff);

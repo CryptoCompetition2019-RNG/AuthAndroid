@@ -16,7 +16,7 @@ public class UserModel extends AbstractModel {
     public String salt;
     public BigInteger biologic;
     public BigInteger imei;
-    public String randomToken;
+    public byte[] randomToken;
 
     public UserModel(String username) {
         super(ConvertUtil.zeroRPad(username, 64));

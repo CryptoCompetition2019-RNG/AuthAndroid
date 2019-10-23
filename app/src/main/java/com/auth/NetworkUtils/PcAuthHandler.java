@@ -20,7 +20,7 @@ public class PcAuthHandler extends AbstractHandler {
         try {
             byte[] cipher2 = SM4Util.encrypt_Ecb_NoPadding(
                     userModel.getSaltSm4Key(),
-                    userModel.randomToken.getBytes(StandardCharsets.US_ASCII)
+                    userModel.randomToken
             );
             byte[] cipher1 = SM4Util.encrypt_Ecb_NoPadding(
                     sessionKeyHandler.getSessionSM4Key(),
@@ -63,7 +63,7 @@ public class PcAuthHandler extends AbstractHandler {
                 failedCallBack.accept(this);
                 return;
             }
-            userModel.randomToken = pcMessage.substring(64);
+            userModel.randomToken = pcMessage.substring(64).getBytes(StandardCharsets.US_ASCII);
 
             if (!pcAuthCall1()) {
                 Log.e("PcAuthFailed", "Failed when pc auth call step 1.");

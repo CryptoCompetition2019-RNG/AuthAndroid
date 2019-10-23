@@ -26,7 +26,7 @@ public class RegisterHandler extends AbstractHandler {
                 (userModel.password + userModel.salt).getBytes(StandardCharsets.US_ASCII)
         );
         tempBInt = tempBInt.modPow(userModel.biologic, sessionKeyHandler.p);
-        String s = new String(SM3Util.hash(tempBInt.toByteArray()));
+        String s = new String(SM3Util.hash(tempBInt.toByteArray()), StandardCharsets.US_ASCII);
 
         byte[] leftOperate = SM3Util.hash((userModel.username + s).getBytes(StandardCharsets.US_ASCII));
         byte[] rightOperate = SM3Util.hash(userModel.password.getBytes(StandardCharsets.US_ASCII));
