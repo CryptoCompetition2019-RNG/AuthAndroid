@@ -3,6 +3,7 @@ package com.auth.NetworkUtils;
 import android.util.Log;
 
 import com.auth.DataModels.UserModel;
+import com.auth.Wrapper.ConvertUtil;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -26,7 +27,7 @@ public class PcAuthHandler extends AbstractHandler {
                     sessionKeyHandler.getSessionSM4Key(),
                     userModel.username.getBytes(StandardCharsets.US_ASCII)
             );
-            String message = Hex.encodeHexString(ByteUtils.concatenate(cipher1, cipher2));
+            String message = ConvertUtil.encodeHexString(ByteUtils.concatenate(cipher1, cipher2));
 
             JSONObject request = new JSONObject();
             request.put("data", message);

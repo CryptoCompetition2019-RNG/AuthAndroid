@@ -2,6 +2,8 @@ package com.auth.Wrapper;
 
 import junit.framework.Assert;
 
+import org.apache.commons.codec.binary.Hex;
+
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,5 +35,10 @@ public class ConvertUtil {
         }
         byte[] res =  ConvertUtil.zeroRPad(bintArray, length);
         return res;
+    }
+
+    public static String encodeHexString(byte[] raw){
+        char[] hex = Hex.encodeHex(raw);
+        return String.valueOf(hex);
     }
 }

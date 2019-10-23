@@ -154,8 +154,12 @@ public class RegisterActivity extends AppCompatActivity {
                     //RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
                     RegisterHandler registerHandler = new RegisterHandler(
                             userModel,
-                            (AbstractHandler caller) -> {},
-                            (AbstractHandler caller) -> {}
+                            (AbstractHandler caller) -> {
+                                Log.i("ActivityDebug", "success");
+                            },
+                            (AbstractHandler caller) -> {
+                                Log.i("ActivityDebug", "failed");
+                            }
                     );
                     // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
                     if (registerHandler.checkStatus()){

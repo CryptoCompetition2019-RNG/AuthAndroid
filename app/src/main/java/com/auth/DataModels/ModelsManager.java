@@ -1,5 +1,13 @@
 package com.auth.DataModels;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.pm.ApplicationInfo;
+import android.os.Environment;
+
+import com.auth.Wrapper.ConvertUtil;
+
 import org.apache.commons.codec.binary.Hex;
 import org.zz.gmhelper.SM3Util;
 
@@ -7,9 +15,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class ModelsManager {
-    private static ModelsManager sharedInstance = new ModelsManager();
+    private static Context appContext;
+    private static ModelsManager sharedInstance;
 
-    private ModelsManager() {
+    public ModelsManager(Context context) {
+        appContext = context;
+        sharedInstance = this;
     }
 
     public static ModelsManager getInstance() {
@@ -20,6 +31,10 @@ public class ModelsManager {
         byte[] filename = SM3Util.hash(
                 model.getUniqueIdent().getBytes(StandardCharsets.US_ASCII)
         );
-        return "UserModelSavedMessage/" + Hex.encodeHexString(filename);
+        if(appContext == null){
+            return "UserModelSavedMessage/" + ConvertUtil.encodeHexString(filename);
+        } else {
+            return appContext.getDataDir().toString() + '/' + ConvertUtil.encodeHexString(filename);
+        }
     }
 }

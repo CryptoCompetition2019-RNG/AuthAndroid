@@ -31,7 +31,8 @@ public class HttpUtil {
 
         String requestUrl = NetworkConstant.serverUrl + requestRoute;
         String requestData = requestJson.toString();
-        Log.d("Message", String.format("requestData: %s", requestData));
+        Log.i("HttpMessage", String.format("requestPath: %s", requestUrl));
+        Log.i("HttpMessage", String.format("requestData: %s", requestData));
         try
         {
             HttpURLConnection connection = (HttpURLConnection) new URL(requestUrl).openConnection();
@@ -57,7 +58,7 @@ public class HttpUtil {
 
             if(connection.getResponseCode() != 200)
             {
-                Log.e("Request Error", "Http request failed!");
+                Log.e("Request Error", String.format("Http request failed: %s", connection.getResponseCode()));
                 return null;
             }
 
@@ -75,8 +76,8 @@ public class HttpUtil {
                 stringBuilder.append(line);
                 stringBuilder.append("\r\n");
             }
+            Log.i("HttpMessage", String.format("responseData: %s", stringBuilder.toString()));
             return new JSONObject(stringBuilder.toString());
-
         } catch (Exception e)
         {
             e.printStackTrace();

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.auth.Wrapper.ConvertUtil;
 import com.auth.DataModels.UserModel;
-import com.auth.Wrapper.ThreadWrapper;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -14,8 +13,10 @@ import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.Random;
 import java.util.function.Consumer;
+
+import static com.auth.Wrapper.ConvertUtil.encodeHexString;
+import static com.auth.Wrapper.ConvertUtil.zeroRPad;
 
 public class RegisterHandler extends AbstractHandler {
     private UserModel userModel;
@@ -32,15 +33,15 @@ public class RegisterHandler extends AbstractHandler {
         byte[] rightOperate = SM3Util.hash(userModel.password.getBytes(StandardCharsets.US_ASCII));
 
         tempBInt = (new BigInteger(leftOperate)).xor(new BigInteger(rightOperate));
-        String A_pwd = Hex.encodeHexString(ConvertUtil.zeroRPad(tempBInt, 32));
+        String A_pwd = encodeHexString(zeroRPad(tempBInt, 32));
         // info: A_pwd.length() == 64
 
         BigInteger exponent = new BigInteger(ByteUtils.concatenate(leftOperate, rightOperate));
         tempBInt = sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p);
-        String B_pwd = Hex.encodeHexString(ConvertUtil.zeroRPad(tempBInt, 32));
+        String B_pwd = encodeHexString(zeroRPad(tempBInt, 32));
         //  info: B_pwd.length() == 64
 
-        String hexHashImei = Hex.encodeHexString(SM3Util.hash(userModel.imei.toByteArray()));
+        String hexHashImei = encodeHexString(SM3Util.hash(userModel.imei.toByteArray()));
 
         try {
             byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes(StandardCharsets.US_ASCII);
@@ -48,7 +49,7 @@ public class RegisterHandler extends AbstractHandler {
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4SessionKey, plainData);
 
             JSONObject request = new JSONObject() {{
-                put("data", Hex.encodeHexString(cipherData));
+                put("data", encodeHexString(cipherData));
             }};
             JSONObject response = HttpUtil.sendPostRequest("/register_api/", request);
             return (response != null) && response.getInt("code") == 0;

@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 //import com.uuzuche.lib_zxing.activity.CaptureActivity;
 //import com.auth.CryptoUtils.MD5Util;
+import com.auth.DataModels.ModelsManager;
 import com.auth.DataModels.UserModel;
 import com.auth.NetworkUtils.AbstractHandler;
 import com.auth.NetworkUtils.MobileAuthHandler;
@@ -22,10 +24,12 @@ import com.auth.NetworkUtils.DynamicAuthHandler;
 import com.auth.Wrapper.ConvertUtil;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.Security;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) != null){
+            double version = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME).getVersion();
+            Log.i("sys","原有version="+version);
+        }
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null){
+            Log.i("sys","运行环境没有BouncyCastleProvider");
+            Security.addProvider(new BouncyCastleProvider());
+            double version = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME).getVersion();
+            Log.i("sys","现有version="+version);
+        }
+        new ModelsManager(getApplicationContext());
     }
 
     /*

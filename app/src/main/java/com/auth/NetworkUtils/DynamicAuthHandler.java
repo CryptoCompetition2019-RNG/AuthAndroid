@@ -3,6 +3,7 @@ package com.auth.NetworkUtils;
 import android.util.Log;
 
 import com.auth.DataModels.UserModel;
+import com.auth.Wrapper.ConvertUtil;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -24,14 +25,14 @@ public class DynamicAuthHandler extends AbstractHandler {
         try {
             userModel.randomToken = SM4Util.decrypt_Ecb_NoPadding(userModel.getSaltSm4Key(), qrMessage);
 
-            String hashImei = Hex.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
+            String hashImei = ConvertUtil.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
             byte[] plainData = ByteUtils.concatenate(
                     (userModel.username + hashImei).getBytes(StandardCharsets.US_ASCII), userModel.randomToken
             );
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getSessionSM4Key(), plainData);
 
             JSONObject request = new JSONObject();
-            request.put("data", Hex.encodeHexString(cipherData));
+            request.put("data", ConvertUtil.encodeHexString(cipherData));
             JSONObject response = HttpUtil.sendPostRequest("/dynamicauth_api2/", request);
             return (response != null) && (response.getInt("code") == 0);
         } catch (Exception e) {

@@ -52,7 +52,7 @@ public class DynamicAuthHandlerTest {
             byte[] cipherRequest = SM4Util.encrypt_Ecb_NoPadding(
                     sessionKeyHandler.getSessionSM4Key(), username.getBytes(StandardCharsets.US_ASCII)
             );
-            JSONObject request = new JSONObject(){{ put("data", Hex.encodeHexString(cipherRequest)); }};
+            JSONObject request = new JSONObject(){{ put("data", ConvertUtil.encodeHexString(cipherRequest)); }};
             JSONObject response = HttpUtil.sendPostRequest("/dynamicauth_api1/", request);
             assertTrue((response != null) && (response.getInt("code") == 0));
             return Hex.decodeHex(response.getString("data"));

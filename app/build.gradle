@@ -50,19 +50,19 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.9'
     // https://mvnrepository.com/artifact/org.json/json
     implementation group: 'org.json', name: 'json', version: '20190722'
-    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.10'
     implementation 'com.orhanobut:logger:2.2.0'
     // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk16
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.62'
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
     implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.13'
 
     // https://mvnrepository.com/artifact/junit/junit
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.json', name: 'json', version: '20190722'
-    testImplementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.10'
     testImplementation 'com.orhanobut:logger:2.2.0'
     testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.62'
     testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.62'
+    testImplementation group: 'commons-codec', name: 'commons-codec', version: '1.13'
 }

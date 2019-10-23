@@ -30,7 +30,7 @@ public class MobileAuthHandler extends AbstractHandler {
                     sessionSm4Key, userModel.username.getBytes(StandardCharsets.US_ASCII)
             );
             JSONObject request = new JSONObject();
-            request.put("data", Hex.encodeHexString(sm4_id));
+            request.put("data", ConvertUtil.encodeHexString(sm4_id));
             JSONObject response = HttpUtil.sendPostRequest("/mobileauth_api1/", request);
             if(response == null) return false;
 
@@ -71,7 +71,7 @@ public class MobileAuthHandler extends AbstractHandler {
                     ByteUtils.concatenate(userModel.randomToken, B_pwd.getBytes(StandardCharsets.US_ASCII))
             );
             JSONObject request = new JSONObject();
-            request.put("data", Hex.encodeHexString(sm4_rB));
+            request.put("data", ConvertUtil.encodeHexString(sm4_rB));
             JSONObject response = HttpUtil.sendPostRequest("/mobileauth_api2/", request);
             return (response != null) && (response.getInt("code") == 0);
         } catch (Exception e) {
