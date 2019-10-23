@@ -15,6 +15,7 @@ import android.widget.Toast;
 //import com.uuzuche.lib_zxing.activity.CaptureActivity;
 //import com.auth.CryptoUtils.MD5Util;
 import com.auth.DataModels.UserModel;
+import com.auth.NetworkUtils.AbstractHandler;
 import com.auth.NetworkUtils.MobileAuthHandler;
 import com.auth.NetworkUtils.PcAuthHandler;
 import com.auth.NetworkUtils.DynamicAuthHandler;
@@ -199,7 +200,11 @@ public class MainActivity extends AppCompatActivity {
             } else if (result.charAt(len-1) == '1') {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 在前端扫码得到字符串之后，将字符串传入创建 PcAuthHandler 对象
-                PcAuthHandler pcAuthHandler = new PcAuthHandler(result.substring(0,len-1));
+                PcAuthHandler pcAuthHandler = new PcAuthHandler(
+                        result.substring(0,len-1),
+                        (AbstractHandler caller) -> {},
+                        (AbstractHandler caller) -> {}
+                );
                 // 创建完成后，判断是够创建成功（成功或失败后可以进行一些用户交互）
                 //pcAuthHandler.checkStatus();
             } else if (result.charAt(len-1) == '2') {

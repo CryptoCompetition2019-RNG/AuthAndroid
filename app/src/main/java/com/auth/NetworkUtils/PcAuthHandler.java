@@ -9,6 +9,8 @@ import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
 import org.zz.gmhelper.SM4Util;
 
+import java.util.function.Consumer;
+
 public class PcAuthHandler extends AbstractHandler {
     private UserModel userModel;
     private SessionKeyHandler sessionKeyHandler;
@@ -36,33 +38,51 @@ public class PcAuthHandler extends AbstractHandler {
     /**
      * @param pcMessage PC 认证时，扫二维码得到的字符串信息
      */
-    public PcAuthHandler(String pcMessage) {
+    public PcAuthHandler(
+            String pcMessage,
+            Consumer<AbstractHandler> successCallBack,
+            Consumer<AbstractHandler> failedCallBack
+    ) {
         if (pcMessage.length() != 128) {
-            Log.e("PcAuth Failed", "Please provide a 128 length message.");
+            Log.e("PcAuthFailed", "Please provide a 128 length message.");
+            failedCallBack.accept(this);
             return;
         }
 
-        sessionKeyHandler = new SessionKeyHandler(
-                (AbstractHandler caller) -> {},
-                (AbstractHandler caller) -> {}
-        );
-        if (!sessionKeyHandler.checkStatus()) {
-            Log.e("PcAuth Failed", "Failed when negotiate session key.");
-            return;
-        }
+        Consumer<AbstractHandler>  sessionSuccessCallBack = (AbstractHandler caller) ->
+        {
+            Log.i("PcAuthInfo", "Negotiate session key success");
 
-        userModel = new UserModel(pcMessage.substring(0, 64));
-        userModel.loadFromFile();
-        if(!userModel.checkLoaded()){
-            Log.e("PcAuth Failed", "Loaded user by username failed.");
-            return;
-        }
-        userModel.randomToken = pcMessage.substring(64);
+            userModel = new UserModel(pcMessage.substring(0, 64));
+            userModel.loadFromFile();
+            if(!userModel.checkLoaded()){
+                Log.e("PcAuthFailed", "Loaded user by username failed.");
+                failedCallBack.accept(this);
+                return;
+            }
+            userModel.randomToken = pcMessage.substring(64);
 
-        if (!pcAuthCall1()) {
-            Log.e("PcAuth Failed", "Failed when pc auth call step 1.");
-            return;
-        }
-        this.compeleteStatus = true;
+            if (!pcAuthCall1()) {
+                Log.e("PcAuthFailed", "Failed when pc auth call step 1.");
+                return;
+            }
+            this.compeleteStatus = true;
+            successCallBack.accept(this);
+        };
+        Consumer<AbstractHandler> sessionFailedCallBack = (AbstractHandler caller) ->
+        {
+            Log.e("RegisterFailed", "Failed when negotiate session key");
+            failedCallBack.accept(this);
+        };
+
+        handleThread = new Thread(() -> {
+            sessionKeyHandler = new SessionKeyHandler(sessionSuccessCallBack, sessionFailedCallBack);
+            try {
+                sessionKeyHandler.handleThread.join();
+            }catch (InterruptedException ie){
+                Log.w("PcAuthWarn", String.format("Interrupt:%s", ie.toString()));
+            }
+        });
+        handleThread.start();
     }
 }

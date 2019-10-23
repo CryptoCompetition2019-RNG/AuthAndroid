@@ -61,7 +61,7 @@ public class RegisterHandler extends AbstractHandler {
         userModel = _usermodel_;
         Consumer<AbstractHandler> sessionSuccessCallBack = (AbstractHandler caller) ->
         {
-            Log.i("Register", "Negotiate session key success");
+            Log.i("RegisterInfo", "Negotiate session key success");
 
             if (!this.registerCall()) {
                 Log.e("RegisterFailed", "Failed when request");

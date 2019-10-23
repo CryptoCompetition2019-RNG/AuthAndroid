@@ -17,7 +17,14 @@ public class PcAuthHandlerTest {
         assertEquals(username.length(), 64);
         assertEquals(random1.length(), 64);
 
-        PcAuthHandler pcAuthHandler = new PcAuthHandler(username + random1);
+        PcAuthHandler pcAuthHandler = new PcAuthHandler(
+                username + random1,
+                (AbstractHandler caller) -> { assertTrue(caller.checkStatus()); },
+                (AbstractHandler caller) -> { fail(); }
+        );
+        try {
+            pcAuthHandler.handleThread.join();
+        } catch (InterruptedException ie) { fail(); }
         assertTrue(pcAuthHandler.checkStatus());
     }
 }
