@@ -13,6 +13,7 @@ import org.zz.gmhelper.SM3Util;
 import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -21,24 +22,29 @@ public class RegisterHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
 
     private boolean registerCall() {
-        BigInteger tempBInt = new BigInteger((userModel.password + userModel.salt).getBytes());
+        BigInteger tempBInt = new BigInteger(
+                (userModel.password + userModel.salt).getBytes(StandardCharsets.US_ASCII)
+        );
         tempBInt = tempBInt.modPow(userModel.biologic, sessionKeyHandler.p);
         String s = new String(SM3Util.hash(tempBInt.toByteArray()));
 
-        byte[] leftOperate = SM3Util.hash((userModel.username + s).getBytes());
-        byte[] rightOperate = SM3Util.hash(userModel.password.getBytes());
+        byte[] leftOperate = SM3Util.hash((userModel.username + s).getBytes(StandardCharsets.US_ASCII));
+        byte[] rightOperate = SM3Util.hash(userModel.password.getBytes(StandardCharsets.US_ASCII));
 
         tempBInt = (new BigInteger(leftOperate)).xor(new BigInteger(rightOperate));
-        String A_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
+        byte[] temp = ConvertUtil.zeroRPad(tempBInt, 32);
+        String A_pwd = Hex.encodeHexString(temp);
+        // info: A_pwd.length() == 64
 
         BigInteger exponent = new BigInteger(ByteUtils.concatenate(leftOperate, rightOperate));
         tempBInt = sessionKeyHandler.g.modPow(exponent, sessionKeyHandler.p);
-        String B_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
+        String B_pwd = Hex.encodeHexString(ConvertUtil.zeroRPad(tempBInt, 32));
+        //  info: B_pwd.length() == 64
 
         String hexHashImei = Hex.encodeHexString(SM3Util.hash(userModel.imei.toByteArray()));
 
         try {
-            byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes();
+            byte[] plainData = (userModel.username + userModel.salt + A_pwd + B_pwd + hexHashImei).getBytes(StandardCharsets.US_ASCII);
             byte[] sm4SessionKey = sessionKeyHandler.getSessionSM4Key();
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4SessionKey, plainData);
 

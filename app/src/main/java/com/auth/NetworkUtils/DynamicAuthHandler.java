@@ -10,6 +10,7 @@ import org.zz.gmhelper.SM3Util;
 import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 public class DynamicAuthHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
@@ -22,7 +23,7 @@ public class DynamicAuthHandler extends AbstractHandler {
             userModel.randomToken = new String(SM4Util.decrypt_Ecb_NoPadding(userModel.getSaltSm4Key(), qrMessage));
 
             String hashImei = Hex.encodeHexString( SM3Util.hash(userModel.imei.toByteArray()) );
-            byte[] plainData = (userModel.username + hashImei + userModel.randomToken).getBytes();
+            byte[] plainData = (userModel.username + hashImei + userModel.randomToken).getBytes(StandardCharsets.US_ASCII);
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sessionKeyHandler.getSessionSM4Key(), plainData);
 
             JSONObject request = new JSONObject();

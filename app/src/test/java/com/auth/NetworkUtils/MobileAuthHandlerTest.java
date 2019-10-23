@@ -10,7 +10,15 @@ public class MobileAuthHandlerTest {
         String username = "shesl-meow";
         String password = "shesl-meow";
 
-        MobileAuthHandler mobileAuthHandler = new MobileAuthHandler(username, password);
+        MobileAuthHandler mobileAuthHandler = new MobileAuthHandler(
+                username,
+                password,
+                (AbstractHandler caller) -> { assertTrue(caller.checkStatus()); },
+                (AbstractHandler caller) -> { fail(); }
+        );
+        try {
+            mobileAuthHandler.handleThread.join();
+        } catch (InterruptedException ie){ fail(); }
         assertTrue(mobileAuthHandler.checkStatus());
     }
 

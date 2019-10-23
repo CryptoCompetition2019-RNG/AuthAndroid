@@ -12,6 +12,8 @@ import org.zz.gmhelper.SM3Util;
 import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public class MobileAuthHandler extends AbstractHandler {
     private UserModel userModel;
@@ -24,7 +26,9 @@ public class MobileAuthHandler extends AbstractHandler {
         String plainResponse;
         try {
             byte[] sessionSm4Key = sessionKeyHandler.getSessionSM4Key();
-            byte[] sm4_id = SM4Util.encrypt_Ecb_NoPadding(sessionSm4Key, userModel.username.getBytes());
+            byte[] sm4_id = SM4Util.encrypt_Ecb_NoPadding(
+                    sessionSm4Key, userModel.username.getBytes(StandardCharsets.US_ASCII)
+            );
             assert sm4_id.length == 64;
             JSONObject request = new JSONObject();
             request.put("data", Hex.encodeHexString(sm4_id));
@@ -48,7 +52,9 @@ public class MobileAuthHandler extends AbstractHandler {
 
     private void calculateBpwd(){
         BigInteger A = new BigInteger(A_pwd, 16);
-        BigInteger hashPassword = new BigInteger( SM3Util.hash( userModel.password.getBytes() ));
+        BigInteger hashPassword = new BigInteger(
+                SM3Util.hash( userModel.password.getBytes(StandardCharsets.US_ASCII) )
+        );
         BigInteger exponent = new BigInteger(
                 ByteUtils.concatenate(A.xor(hashPassword).toByteArray(), hashPassword.toByteArray())
         );
@@ -61,7 +67,8 @@ public class MobileAuthHandler extends AbstractHandler {
     private boolean mobileAuthCall2() {
         try {
             byte[] sm4_rB = SM4Util.encrypt_Ecb_NoPadding(
-                    sessionKeyHandler.getSessionSM4Key(), (userModel.randomToken + B_pwd).getBytes()
+                    sessionKeyHandler.getSessionSM4Key(),
+                    (userModel.randomToken + B_pwd).getBytes(StandardCharsets.US_ASCII)
             );
             JSONObject request = new JSONObject();
             request.put("data", Hex.encodeHexString(sm4_rB));
@@ -73,34 +80,54 @@ public class MobileAuthHandler extends AbstractHandler {
         }
     }
 
-    public MobileAuthHandler(final String _username_, final String _password_){
-        sessionKeyHandler = new SessionKeyHandler(
-                (AbstractHandler caller) -> {},
-                (AbstractHandler caller) -> {}
-        );
-        if(!sessionKeyHandler.checkStatus()){
-            Log.e("MobileAuth Failed", "Failed when negotiate session key.");
-            return;
-        }
+    public MobileAuthHandler(
+            String _username_,
+            String _password_,
+            Consumer<AbstractHandler> successCallBack,
+            Consumer<AbstractHandler> failedCallBack
+    ){
+        final String padUsername = ConvertUtil.zeroRPad(_username_, 64);
+        final String padPassword = ConvertUtil.zeroRPad(_password_, 64);
+        Consumer<AbstractHandler> sessionSuccessCallBack = (AbstractHandler caller) ->
+        {
+            Log.i("RegisterInfo", "Negotiate session key success");
 
-        userModel = new UserModel(_username_) {
-            { password = ConvertUtil.zeroRPad(_password_, 64); }
+            userModel = new UserModel(padUsername) {{ password = padPassword; }};
+            userModel.loadFromFile();
+            if(!userModel.checkLoaded()) {
+                Log.e("MobileAuthFailed", "Loaded user by username failed.");
+                failedCallBack.accept(this);
+                return;
+            }
+
+            if (!mobileAuthCall1()) {
+                Log.e("MobileAuthFailed", "Failed when mobile auth call step 1");
+                failedCallBack.accept(this);
+                return;
+            }
+            this.calculateBpwd();
+            if(!mobileAuthCall2()) {
+                Log.e("MobileAuthFailed", "Failed when mobile auth call step 2");
+                failedCallBack.accept(this);
+                return;
+            }
+
+            this.compeleteStatus = true;
+            successCallBack.accept(this);
         };
-        userModel.loadFromFile();
-        if(!userModel.checkLoaded()) {
-            Log.e("MobileAuth Failed", "Loaded user by username failed.");
-            return;
-        }
-        if (!mobileAuthCall1()) {
-            Log.e("MobileAuth Failed", "Failed when mobile auth call step 1");
-            return;
-        }
-        this.calculateBpwd();
-        if(!mobileAuthCall2()) {
-            Log.e("MobileAuth Failed", "Failed when mobile auth call step 2");
-            return;
-        }
+        Consumer<AbstractHandler> sesssionFailedCallBack = (AbstractHandler caller) -> {
+            Log.e("MobileAuthFailed", "Failed when negotiate session key");
+            failedCallBack.accept(this);
+        };
 
-        this.compeleteStatus = true;
+        handleThread = new Thread(() -> {
+            sessionKeyHandler = new SessionKeyHandler(sessionSuccessCallBack, sesssionFailedCallBack);
+            try {
+                sessionKeyHandler.handleThread.join();
+            } catch (InterruptedException ie) {
+                Log.w("MobileAuthWarn", String.format("Interrupt:%s", ie.toString()));
+            }
+        });
+        handleThread.start();
     }
 }

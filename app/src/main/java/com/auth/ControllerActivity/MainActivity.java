@@ -25,6 +25,7 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -107,7 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 userName = et_user_name.getText().toString().trim();
                 psw = et_psw.getText().toString().trim();
                 // 用户输入用户密码之后，直接创建这个对象，完成所有的认证工作
-                MobileAuthHandler mobileAuthHandler = new MobileAuthHandler(userName, psw);
+                MobileAuthHandler mobileAuthHandler = new MobileAuthHandler(
+                        userName, psw,
+                        (AbstractHandler caller) -> {},
+                        (AbstractHandler caller) -> {}
+                );
                 // TextUtils.isEmpty
                 if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(MainActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
@@ -211,7 +216,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,VerifyActivity.class));
                 // 扫码后把字符串传入
                 DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(
-                        result.substring(0,64), result.substring(64,128).getBytes(), BigInteger.valueOf(0x7fff)
+                        result.substring(0,64),
+                        result.substring(64,128).getBytes(StandardCharsets.US_ASCII),
+                        BigInteger.valueOf(0x7fff)
                 );
                 // 检查是否认证成功
                 //dynamicAuthHandler.checkStatus();

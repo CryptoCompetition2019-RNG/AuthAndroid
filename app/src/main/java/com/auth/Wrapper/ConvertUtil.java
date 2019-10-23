@@ -3,6 +3,8 @@ package com.auth.Wrapper;
 import junit.framework.Assert;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class ConvertUtil {
@@ -20,7 +22,16 @@ public class ConvertUtil {
         } else {
             String srcStr = new String(src);
             String dstStr = String.format("%-" + length + "s", srcStr).replace(" ", "0");
-            return dstStr.getBytes();
+            return dstStr.getBytes(StandardCharsets.US_ASCII);
         }
+    }
+
+    public static byte[] zeroRPad(BigInteger src, Integer length) {
+        byte[] bintArray = src.toByteArray();
+        if (bintArray[0] == 0) {
+            bintArray = Arrays.copyOfRange(bintArray, 1, bintArray.length);
+        }
+        byte[] res =  ConvertUtil.zeroRPad(bintArray, length);
+        return res;
     }
 }

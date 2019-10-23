@@ -70,10 +70,6 @@ public class SessionKeyHandler extends AbstractHandler {
     }
 
     public byte[] getSessionSM4Key() {
-        byte[] bintArray = sharedSecret.toByteArray();
-        if (bintArray[0] == 0) {
-            bintArray = Arrays.copyOfRange(bintArray, 1, bintArray.length);
-        }
-        return ConvertUtil.zeroRPad(bintArray, 16);
+        return ConvertUtil.zeroRPad(sharedSecret, 16);
     }
 }

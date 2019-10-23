@@ -9,6 +9,7 @@ import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.json.JSONObject;
 import org.zz.gmhelper.SM4Util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 public class PcAuthHandler extends AbstractHandler {
@@ -18,10 +19,12 @@ public class PcAuthHandler extends AbstractHandler {
     private boolean pcAuthCall1() {
         try {
             byte[] cipher2 = SM4Util.encrypt_Ecb_NoPadding(
-                    userModel.getSaltSm4Key(), userModel.randomToken.getBytes()
+                    userModel.getSaltSm4Key(),
+                    userModel.randomToken.getBytes(StandardCharsets.US_ASCII)
             );
             byte[] cipher1 = SM4Util.encrypt_Ecb_NoPadding(
-                    sessionKeyHandler.getSessionSM4Key(), userModel.username.getBytes()
+                    sessionKeyHandler.getSessionSM4Key(),
+                    userModel.username.getBytes(StandardCharsets.US_ASCII)
             );
             String message = Hex.encodeHexString(ByteUtils.concatenate(cipher1, cipher2));
 
