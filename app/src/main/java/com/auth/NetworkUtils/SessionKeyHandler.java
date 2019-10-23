@@ -48,20 +48,24 @@ public class SessionKeyHandler extends AbstractHandler {
         }
     }
 
-    SessionKeyHandler(Consumer<AbstractHandler> successCallBack) {
-        handleThread = ThreadWrapper.getTimeoutAyncThread(() ->{
+    SessionKeyHandler(Consumer<AbstractHandler> successCallBack, Consumer<AbstractHandler> failedCallBack) {
+        handleThread = new Thread(() ->{
             if (!negotiateCall1()) {
-                Log.e("Negotiate Failed", "Negotiate DH key failed at step 1.");
+                Log.e("NegotiateFailed", "Negotiate DH key failed at step 1.");
+                failedCallBack.accept(this);
                 return;
             }
+
             this.mySecret = new BigInteger(256, new Random());
             if (!negotiateCall2()) {
-                Log.e("Negotiate Failed", "Negotiate DH key failed at step 2.");
+                Log.e("NegotiateFailed", "Negotiate DH key failed at step 2.");
+                failedCallBack.accept(this);
                 return;
             }
+
             this.compeleteStatus = true;
             successCallBack.accept(this);
-        }, 0);
+        });
         handleThread.start();
     }
 

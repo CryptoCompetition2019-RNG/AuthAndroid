@@ -18,6 +18,9 @@ import android.content.Context;
 import android.os.CancellationSignal;
 import android.telephony.TelephonyManager;
 
+import com.auth.DataModels.UserModel;
+import com.auth.NetworkUtils.AbstractHandler;
+import com.auth.Wrapper.ConvertUtil;
 import com.auth.Wrapper.MD5Util;
 import com.auth.NetworkUtils.RegisterHandler;
 
@@ -26,6 +29,7 @@ import java.lang.reflect.Method;
 
 import java.lang.reflect.Field;
 import java.math.BigInteger;
+import java.util.Random;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -136,9 +140,23 @@ public class RegisterActivity extends AppCompatActivity {
                 } else if(psw.matches("^[A-Za-z]+$") || psw.matches("^[0-9]*$")){
                     Toast.makeText(RegisterActivity.this, "密码应设置为数字和字母的组合", Toast.LENGTH_SHORT).show();
                 } else{
+                    UserModel userModel = new UserModel(ConvertUtil.zeroRPad(userName, 64)) {
+                        {
+                            password = ConvertUtil.zeroRPad(psw, 64);
+                            salt = ConvertUtil.zeroRPad(
+                                    (new BigInteger(256, new Random())).toString(16), 64
+                            );
+                            biologic = BigInteger.valueOf(1);
+                            imei = BigInteger.valueOf(0x7fff);
+                        }
+                    };
                     // 所有的注册工作会在这个对象创建的时候完成
                     //RegisterHandler registerHandler = new RegisterHandler(userName, psw, 1, getIMEI(RegisterActivity.this));
-                    RegisterHandler registerHandler = new RegisterHandler(userName, psw, BigInteger.valueOf(1), BigInteger.valueOf(0x7fff));
+                    RegisterHandler registerHandler = new RegisterHandler(
+                            userModel,
+                            (AbstractHandler caller) -> {},
+                            (AbstractHandler caller) -> {}
+                    );
                     // 创建完对象之后，通过调调用函数判断是否创建成功（也就意味这注册成功）
                     if (registerHandler.checkStatus()){
                         Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();

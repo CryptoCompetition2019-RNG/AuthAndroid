@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.auth.Wrapper.ConvertUtil;
 import com.auth.DataModels.UserModel;
+import com.auth.Wrapper.ThreadWrapper;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
@@ -13,6 +14,7 @@ import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class RegisterHandler extends AbstractHandler {
     private UserModel userModel;
@@ -23,8 +25,8 @@ public class RegisterHandler extends AbstractHandler {
         tempBInt = tempBInt.modPow(userModel.biologic, sessionKeyHandler.p);
         String s = new String(SM3Util.hash(tempBInt.toByteArray()));
 
-        byte[] leftOperate = SM3Util.hash( (userModel.username + s).getBytes() );
-        byte[] rightOperate = SM3Util.hash( userModel.password.getBytes() );
+        byte[] leftOperate = SM3Util.hash((userModel.username + s).getBytes());
+        byte[] rightOperate = SM3Util.hash(userModel.password.getBytes());
 
         tempBInt = (new BigInteger(leftOperate)).xor(new BigInteger(rightOperate));
         String A_pwd = ConvertUtil.zeroRPad(tempBInt.toString(16), 64);
@@ -40,12 +42,7 @@ public class RegisterHandler extends AbstractHandler {
             byte[] sm4SessionKey = sessionKeyHandler.getSessionSM4Key();
             byte[] cipherData = SM4Util.encrypt_Ecb_NoPadding(sm4SessionKey, plainData);
 
-            System.out.println(String.format("shared %s",
-                    Hex.encodeHexString(sessionKeyHandler.sharedSecret.toByteArray()))
-            );
-            System.out.println(String.format("key: %s", Hex.encodeHexString(sm4SessionKey)));
-            System.out.println(String.format("cipher: %s", Hex.encodeHexString(cipherData)));
-            JSONObject request = new JSONObject(){{
+            JSONObject request = new JSONObject() {{
                 put("data", Hex.encodeHexString(cipherData));
             }};
             JSONObject response = HttpUtil.sendPostRequest("/register_api/", request);
@@ -57,33 +54,39 @@ public class RegisterHandler extends AbstractHandler {
     }
 
     public RegisterHandler(
-            final String _username_,
-            final String _password_,
-            final BigInteger _biologic_,
-            final BigInteger _imei_
+            UserModel _usermodel_,
+            Consumer<AbstractHandler> successCallBack,
+            Consumer<AbstractHandler> failedCallBack
     ) {
-        sessionKeyHandler = new SessionKeyHandler((AbstractHandler caller) -> {});
-        if (!sessionKeyHandler.checkStatus()) {
-            Log.e("Register Failed", "Failed when negotiate session key");
-            return;
-        }
+        userModel = _usermodel_;
+        Consumer<AbstractHandler> sessionSuccessCallBack = (AbstractHandler caller) ->
+        {
+            Log.i("Register", "Negotiate session key success");
 
-        userModel = new UserModel( ConvertUtil.zeroRPad(_username_, 64) ) {
-            {
-                password = ConvertUtil.zeroRPad(_password_, 64);
-                salt = ConvertUtil.zeroRPad(
-                        (new BigInteger(256, new Random())).toString(16), 64
-                );
-                biologic = _biologic_;
-                imei = _imei_;
+            if (!this.registerCall()) {
+                Log.e("RegisterFailed", "Failed when request");
+                failedCallBack.accept(this);
+                return;
             }
+
+            userModel.saveToFile();
+            this.compeleteStatus = true;
+            successCallBack.accept(this);
+        };
+        Consumer<AbstractHandler> sessionFailedCallBack = (AbstractHandler caller) ->
+        {
+            Log.e("RegisterFailed", "Failed when negotiate session key");
+            failedCallBack.accept(this);
         };
 
-        if (!this.registerCall()) {
-            Log.e("Register Failed", "Failed when request");
-            return;
-        }
-        userModel.saveToFile();
-        this.compeleteStatus = true;
+        handleThread = new Thread(() -> {
+            sessionKeyHandler = new SessionKeyHandler(sessionSuccessCallBack, sessionFailedCallBack);
+            try {
+                sessionKeyHandler.handleThread.join();
+            }catch (InterruptedException ie){
+                Log.w("RegisterWarn", String.format("Interrupt:%s", ie.toString()));
+            }
+        });
+        handleThread.start();
     }
 }
