@@ -11,6 +11,7 @@ import org.zz.gmhelper.SM4Util;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public class DynamicAuthHandler extends AbstractHandler {
     private SessionKeyHandler sessionKeyHandler;
@@ -43,31 +44,47 @@ public class DynamicAuthHandler extends AbstractHandler {
     public DynamicAuthHandler(
             String _username_,
             byte[] _qrMessage_,
-            BigInteger _imei_
+            BigInteger _imei_,
+            Consumer<AbstractHandler> successCallBack,
+            Consumer<AbstractHandler> failedCallBack
     ){
-        sessionKeyHandler = new SessionKeyHandler(
-                (AbstractHandler caller) -> {},
-                (AbstractHandler caller) -> {}
-        );
-        if(!sessionKeyHandler.checkStatus()){
-            Log.e("DynamicAuth Failed", "Failed when negotiate session key.");
-            return;
-        }
-
-        userModel = new UserModel(_username_);
-        userModel.loadFromFile();
-        if(!userModel.checkLoaded()){
-            Log.e("DynamicAuth Failed", "Loaded user by username failed.");
-            return;
-        }
         qrMessage = _qrMessage_;
-        userModel.imei = _imei_;
+        Consumer<AbstractHandler> sessionSuccessCallBack = (AbstractHandler caller) ->
+        {
+            Log.i("DynamicAuthFailed", "Negotiate session key success");
 
-        if(!dynamicAuthCall2()) {
-            Log.e("DynamicAuth Failed", "Failed when dynamic auth call step 2");
-            return;
-        }
+            userModel = new UserModel(_username_);
+            userModel.loadFromFile();
+            if(!userModel.checkLoaded()){
+                Log.e("DynamicAuthFailed", "Loaded user by username failed.");
+                failedCallBack.accept(this);
+                return;
+            }
+            userModel.imei = _imei_;
 
-        this.compeleteStatus = true;
+            if(!dynamicAuthCall2()) {
+                Log.e("DynamicAuthFailed", "Failed when dynamic auth call step 2");
+                failedCallBack.accept(this);
+                return;
+            }
+
+            this.compeleteStatus = true;
+            successCallBack.accept(this);
+        };
+        Consumer<AbstractHandler> sessionFailedCallBack = (AbstractHandler caller) ->
+        {
+            Log.e("DynamicAuthFailed", "Failed when negotiate session key");
+            failedCallBack.accept(this);
+        };
+
+        handleThread = new Thread(() -> {
+            sessionKeyHandler = new SessionKeyHandler(sessionSuccessCallBack, sessionFailedCallBack);
+            try {
+                sessionKeyHandler.handleThread.join();
+            }catch (InterruptedException ie){
+                Log.w("DynamicAuthWarn", String.format("Interrupt:%s", ie.toString()));
+            }
+        });
+        handleThread.start();
     }
 }

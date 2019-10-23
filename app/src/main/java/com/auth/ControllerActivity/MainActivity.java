@@ -218,7 +218,9 @@ public class MainActivity extends AppCompatActivity {
                 DynamicAuthHandler dynamicAuthHandler = new DynamicAuthHandler(
                         result.substring(0,64),
                         result.substring(64,128).getBytes(StandardCharsets.US_ASCII),
-                        BigInteger.valueOf(0x7fff)
+                        BigInteger.valueOf(0x7fff),
+                        (AbstractHandler caller) -> {},
+                        (AbstractHandler caller) -> {}
                 );
                 // 检查是否认证成功
                 //dynamicAuthHandler.checkStatus();
